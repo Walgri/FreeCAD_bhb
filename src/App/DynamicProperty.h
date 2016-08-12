@@ -118,6 +118,7 @@ public:
     //@}
 
 private:
+    /// Encodes an attribute upon saving.
     std::string getUniquePropertyName(const char *Name) const;
 
 private:
