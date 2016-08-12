@@ -90,16 +90,6 @@ ViewProviderDatum::ViewProviderDatum()
 
     DisplayMode.setStatus(App::Property::Hidden, true);
 
-    // set default color for datums (golden yellow with 60% transparency)
-    ParameterGrp::handle hGrp = App::GetApplication().GetParameterGroupByPath (
-            "User parameter:BaseApp/Preferences/Mod/PartDesign");
-    unsigned long shcol = hGrp->GetUnsigned ( "DefaultDatumColor", 0xFFD70099 );
-
-    App::Color col ( (uint32_t) shcol );
-    ShapeColor.setValue ( col );
-
-    Transparency.setValue (col.a * 100);
-
     oldWb = "";
     oldTip = NULL;
 }
@@ -113,6 +103,16 @@ ViewProviderDatum::~ViewProviderDatum()
 void ViewProviderDatum::attach(App::DocumentObject *obj)
 {
     ViewProviderGeometryObject::attach ( obj );
+
+    // set default color for datums (golden yellow with 60% transparency)
+    ParameterGrp::handle hGrp = App::GetApplication().GetParameterGroupByPath (
+            "User parameter:BaseApp/Preferences/Mod/PartDesign");
+    unsigned long shcol = hGrp->GetUnsigned ( "DefaultDatumColor", 0xFFD70099 );
+
+    App::Color col ( (uint32_t) shcol );
+    ShapeColor.setValue ( col );
+
+    Transparency.setValue (col.a * 100);
 
     // TODO remove this field (2015-09-08, Fat-Zer)
     App::DocumentObject* o = getObject();

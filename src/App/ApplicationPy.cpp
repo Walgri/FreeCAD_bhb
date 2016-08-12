@@ -35,6 +35,7 @@
 #include "Document.h"
 #include "DocumentPy.h"
 #include "DocumentObserverPython.h"
+#include "MaterialDatabase.h"
 
 // FreeCAD Base header
 #include <Base/Interpreter.h>
@@ -144,6 +145,9 @@ PyMethodDef Application::Methods[] = {
      "'level' can either be string 'Log', 'Msg', 'Wrn', 'Error', or an integer value"},
     {"getLogLevel",          (PyCFunction) Application::sGetLogLevel, METH_VARARGS,
      "getLogLevel(tag) -- Get the log level of a string tag"},
+    {"getMaterialDatabase",  (PyCFunction) Application::sGetMaterialDatabase  ,1,
+     "getMaterialDatabase() -> MaterialDatabase\n\n"
+     "Get the application's material database."},
 
     {NULL, NULL, 0, NULL}		/* Sentinel */
 };
@@ -763,4 +767,10 @@ PyObject *Application::sGetLogLevel(PyObject * /*self*/, PyObject *args)
     } PY_CATCH;
 }
 
+PyObject* Application::sGetMaterialDatabase(PyObject * /*self*/, PyObject *args)
+{
+    if (!PyArg_ParseTuple(args, ""))     // convert args: Python->C
+        return nullptr;                       // nullptr triggers exception
 
+    return App::GetApplication().getMaterialDatabase().getPyObject();
+}

@@ -55,7 +55,12 @@
 
 #include <Base/Console.h>
 #include <Base/Placement.h>
+#include <App/Application.h>
+#include <App/Material.h>
+#include <App/MaterialDatabase.h>
 #include <App/PropertyGeo.h>
+#include <App/PropertyPartMaterial.h>
+#include <App/MaterialComposition.h>
 #include <App/GeoFeature.h>
 #include <Inventor/draggers/SoCenterballDragger.h>
 #include <Inventor/nodes/SoResetTransform.h>
@@ -79,6 +84,8 @@ ViewProviderGeometryObject::ViewProviderGeometryObject()
     , pcBoundColor(0)
 {
     ParameterGrp::handle hGrp = App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/View");
+
+#ifdef RANDOM_COLOR    
     bool randomColor = hGrp->GetBool("RandomColor", false);
     float r,g,b;
 
@@ -96,10 +103,13 @@ ViewProviderGeometryObject::ViewProviderGeometryObject()
     }
 
     ADD_PROPERTY(ShapeColor,(r, g, b));
+#else
+    ADD_PROPERTY(ShapeColor,(0, 0, 0));
+#endif
     ADD_PROPERTY(Transparency,(0));
     Transparency.setConstraints(&intPercent);
-    App::Material mat(App::Material::DEFAULT);
-    ADD_PROPERTY(ShapeMaterial,(mat));
+
+    ADD_PROPERTY(ShapeMaterial,(0));
     ADD_PROPERTY(BoundingBox,(false));
     ADD_PROPERTY(Selectable,(true));
 
@@ -113,7 +123,7 @@ ViewProviderGeometryObject::ViewProviderGeometryObject()
     pcShapeMaterial = new SoMaterial;
     pcShapeMaterial->ref();
     //ShapeMaterial.touch(); materials are rarely used, so better to initialize with default shape color
-    ShapeColor.touch();
+    //ShapeColor.touch();
 
     pcBoundingBox = new Gui::SoFCBoundingBox;
     pcBoundingBox->ref();
@@ -143,32 +153,39 @@ void ViewProviderGeometryObject::onChanged(const App::Property* prop)
     else if (prop == &ShapeColor) {
         const App::Color& c = ShapeColor.getValue();
         pcShapeMaterial->diffuseColor.setValue(c.r,c.g,c.b);
-        if (c != ShapeMaterial.getValue().diffuseColor)
-        ShapeMaterial.setDiffuseColor(c);
+
+        if (ShapeMaterial.getValue() && c != ShapeMaterial.getValue()->getDiffuseColor())
+            ShapeMaterial.setDiffuseColor(c);
     }
     else if (prop == &Transparency) {
-        const App::Material& Mat = ShapeMaterial.getValue();
-        long value = (long)(100*Mat.transparency);
-        if (value != Transparency.getValue()) {
-            float trans = Transparency.getValue()/100.0f;
-            pcShapeMaterial->transparency = trans;
-            ShapeMaterial.setTransparency(trans);
+        const App::Material* Mat = ShapeMaterial.getValue();
+
+        if (Mat) {
+            long value = (long)(100*Mat->getTransparency());
+            if (value != Transparency.getValue()) {
+                float trans = Transparency.getValue()/100.0f;
+                pcShapeMaterial->transparency = trans;
+                ShapeMaterial.setTransparency(trans);
+            }
         }
     }
     else if (prop == &ShapeMaterial) {
-        const App::Material& Mat = ShapeMaterial.getValue();
-        long value = (long)(100*Mat.transparency);
-        if (value != Transparency.getValue())
-        Transparency.setValue(value);
-        const App::Color& color = Mat.diffuseColor;
-        if (color != ShapeColor.getValue())
-        ShapeColor.setValue(Mat.diffuseColor);
-        pcShapeMaterial->ambientColor.setValue(Mat.ambientColor.r,Mat.ambientColor.g,Mat.ambientColor.b);
-        pcShapeMaterial->diffuseColor.setValue(Mat.diffuseColor.r,Mat.diffuseColor.g,Mat.diffuseColor.b);
-        pcShapeMaterial->specularColor.setValue(Mat.specularColor.r,Mat.specularColor.g,Mat.specularColor.b);
-        pcShapeMaterial->emissiveColor.setValue(Mat.emissiveColor.r,Mat.emissiveColor.g,Mat.emissiveColor.b);
-        pcShapeMaterial->shininess.setValue(Mat.shininess);
-        pcShapeMaterial->transparency.setValue(Mat.transparency);
+        const App::Material* Mat = ShapeMaterial.getValue();
+
+        if (Mat) {
+            long value = (long)(100*Mat->getTransparency());
+            if (value != Transparency.getValue())
+                Transparency.setValue(value);
+            const App::Color& color = Mat->getDiffuseColor();
+            if (color != ShapeColor.getValue())
+                ShapeColor.setValue(Mat->getDiffuseColor());
+            pcShapeMaterial->ambientColor.setValue(Mat->getAmbientColor().r,Mat->getAmbientColor().g,Mat->getAmbientColor().b);
+            pcShapeMaterial->diffuseColor.setValue(Mat->getDiffuseColor().r,Mat->getDiffuseColor().g,Mat->getDiffuseColor().b);
+            pcShapeMaterial->specularColor.setValue(Mat->getSpecularColor().r,Mat->getSpecularColor().g,Mat->getSpecularColor().b);
+            pcShapeMaterial->emissiveColor.setValue(Mat->getEmissiveColor().r,Mat->getEmissiveColor().g,Mat->getEmissiveColor().b);
+            pcShapeMaterial->shininess.setValue(Mat->getShininess());
+            pcShapeMaterial->transparency.setValue(Mat->getTransparency());
+        }
     }
     else if (prop == &BoundingBox) {
         showBoundingBox(BoundingBox.getValue());
@@ -180,6 +197,19 @@ void ViewProviderGeometryObject::onChanged(const App::Property* prop)
 void ViewProviderGeometryObject::attach(App::DocumentObject *pcObj)
 {
     ViewProviderDragger::attach(pcObj);
+
+    App::MaterialSource * source = pcObj->getDocument()->getMaterialDatabase().getMaterialSource("Document");
+    App::Material * mat = source->getOrCreateMaterial((std::string(pcObj->getNameInDocument()) + "-shape-material").c_str());
+    mat->setProperty("Father", std::string("DEFAULT"));
+
+    ParameterGrp::handle hGrp = App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/View");
+    unsigned long shcol = hGrp->GetUnsigned("DefaultShapeColor",3435973887UL); // light gray (204,204,204)
+    float r = ((shcol >> 24) & 0xff) / 255.0;
+    float g = ((shcol >> 16) & 0xff) / 255.0;
+    float b = ((shcol >> 8) & 0xff) / 255.0;
+
+    mat->setDiffuseColor(App::Color(r, g, b));
+    ShapeMaterial.setValue(mat);
 }
 
 void ViewProviderGeometryObject::updateData(const App::Property* prop)
@@ -191,6 +221,57 @@ void ViewProviderGeometryObject::updateData(const App::Property* prop)
         pcBoundingBox->minBounds.setValue(box.MinX, box.MinY, box.MinZ);
         pcBoundingBox->maxBounds.setValue(box.MaxX, box.MaxY, box.MaxZ);
     }
+#if 0
+    // Meterial stuff
+    else if (prop->isDerivedFrom(App::PropertyPlacement::getClassTypeId()) &&
+             strcmp(prop->getName(), "Placement") == 0) {
+        // Note: If R is the rotation, c the rotation center and t the translation
+        // vector then Inventor applies the following transformation: R*(x-c)+c+t
+        // In FreeCAD a placement only has a rotation and a translation part but
+        // no rotation center. This means that the following equation must be ful-
+        // filled: R * (x-c) + c + t = R * x + t
+        //    <==> R * x + t - R * c + c = R * x + t
+        //    <==> (I-R) * c = 0 ==> c = 0
+        // This means that the center point must be the origin!
+        Base::Placement p = static_cast<const App::PropertyPlacement*>(prop)->getValue();
+        updateTransform(p, pcTransform);
+    }
+    else if (prop->getTypeId() == App::PropertyPartMaterial::getClassTypeId()) {
+        const App::PropertyPartMaterial * materialProp = static_cast<const App::PropertyPartMaterial*>(prop);
+        const App::MaterialComposition * mc = materialProp->getSolidMaterials(0);
+
+        if (mc) {
+            try {
+                static int ambientColorId = getObject()->getDocument()->getMaterialDatabase().getPropertyId("AmbientColor");
+                static int diffuseColorId = getObject()->getDocument()->getMaterialDatabase().getPropertyId("DiffuseColor");
+                static int specularColorId = getObject()->getDocument()->getMaterialDatabase().getPropertyId("SpecularColor");
+                static int emissiveColorId = getObject()->getDocument()->getMaterialDatabase().getPropertyId("EmissiveColor");
+                static int shininessId = getObject()->getDocument()->getMaterialDatabase().getPropertyId("Shininess");
+                static int transparencyId = getObject()->getDocument()->getMaterialDatabase().getPropertyId("Transparency");
+
+                App::Color ambientColor = boost::any_cast<App::Color>(mc->getProperty(ambientColorId));
+                App::Color diffuseColor = boost::any_cast<App::Color>(mc->getProperty(diffuseColorId));
+                App::Color specularColor = boost::any_cast<App::Color>(mc->getProperty(specularColorId));
+                App::Color emissiveColor = boost::any_cast<App::Color>(mc->getProperty(emissiveColorId));
+                float shininess = boost::any_cast<float>(mc->getProperty(shininessId));
+                float transparency = boost::any_cast<float>(mc->getProperty(transparencyId));
+
+                pcShapeMaterial->ambientColor.setValue(ambientColor.r, ambientColor.g, ambientColor.b);
+                pcShapeMaterial->diffuseColor.setValue(diffuseColor.r, diffuseColor.g, diffuseColor.b);
+                pcShapeMaterial->specularColor.setValue(specularColor.r, specularColor.g, specularColor.b);
+                pcShapeMaterial->emissiveColor.setValue(emissiveColor.r, emissiveColor.g, emissiveColor.b);
+                pcShapeMaterial->shininess.setValue(shininess);
+                pcShapeMaterial->transparency.setValue(transparency);
+            }
+            catch (boost::bad_any_cast &e) {
+
+            }
+            catch (Base::Exception & e) {
+
+            }
+        }
+    }
+#endif
     else {
         ViewProviderDragger::updateData(prop);
     }
