@@ -643,7 +643,9 @@ def insert(filename,docname,skip=[],only=[],root=None):
 
             shape.scale(1000.0) # IfcOpenShell always outputs in meters, we convert to mm, the freecad internal unit
 
-            if not shape.isNull():
+            if not shape.isNull() and shape.isValid() and shape.Vertexes:
+                # ifcos sometines returns empty Compounds which return
+                # True on not isNull() and True on isValid(), thus the Vertexes are tested too
                 if FITVIEW_ONIMPORT and FreeCAD.GuiUp:
                     # add to the global boundbox
                     try:
