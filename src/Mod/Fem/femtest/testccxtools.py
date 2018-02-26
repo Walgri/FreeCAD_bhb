@@ -291,7 +291,11 @@ class TestCcxTools(unittest.TestCase):
     def test_3_static_nonlinear_material(self):
         fcc_print('--------------- Start of FEM ccxtools nonlinear material test ---------------')
 
-        beam = self.active_doc.addObject("Part::Box", "beam")
+        beam = self.active_doc.addObject("Part::Feature", "Beam")
+        import Part
+        base_name = 'nonlinearmat'
+        beam.Shape = Part.read(self.test_file_dir + base_name + '_part.brep')
+        self.active_doc.recompute()
         if FreeCAD.GuiUp:
             import FreeCADGui
             FreeCADGui.ActiveDocument.activeView().viewAxonometric()
@@ -319,15 +323,15 @@ class TestCcxTools(unittest.TestCase):
         nonlinear_material_object = ObjectsFem.makeMaterialMechanicalNonlinear(self.active_doc, material_object)
         nonlinear_material_object.YieldPoint1 = '235.0, 0.0'
         nonlinear_material_object.YieldPoint2 = '275.0, 0.25'
-        # analysis.addObject(nonlinear_material_object)
+        analysis.addObject(nonlinear_material_object)
 
         fixed_constraint = self.active_doc.addObject("Fem::ConstraintFixed", "ConstraintFixed")
         fixed_constraint.References = [(beam, ("Face2", "Face4"))]
         analysis.addObject(fixed_constraint)
 
         pressure_constraint = self.active_doc.addObject("Fem::ConstraintPressure", "ConstraintPressure")
-        pressure_constraint.References = [(beam, "Face6")]
-        pressure_constraint.Pressure = 1000.0
+        pressure_constraint.References = [(beam, "Face3")]
+        pressure_constraint.Pressure = 10.0
         pressure_constraint.Reversed = False
         analysis.addObject(pressure_constraint)
 
@@ -356,13 +360,12 @@ class TestCcxTools(unittest.TestCase):
         error = fea.write_inp_file()
         self.assertFalse(error, "Writing failed")
         '''
-        static_base_name = 'multimat'
-        static_analysis_inp_file = self.test_file_dir + static_base_name + '.inp'
+        static_analysis_inp_file = self.test_file_dir + base_name + '.inp'
         # fcc_print('Comparing {} to {}/{}.inp'.format(static_analysis_inp_file, static_multiplemat_dir, self.mesh_name))
         # ret = testtools.compare_inp_files(static_analysis_inp_file, static_multiplemat_dir + self.mesh_name + '.inp')
         # self.assertFalse(ret, "ccxtools write_inp_file test failed.\n{}".format(ret))
 
-        static_save_fc_file = static_multiplemat_dir + static_base_name + '.fcstd'
+        static_save_fc_file = static_multiplemat_dir + base_name + '.fcstd'
         fcc_print('Save FreeCAD file for static analysis to {}...'.format(static_save_fc_file))
         self.active_doc.saveAs(static_save_fc_file)
         fcc_print('--------------- End of FEM ccxtools nonlinear material test ---------------')
