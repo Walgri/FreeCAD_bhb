@@ -73,10 +73,17 @@ TaskFemConstraintForce::TaskFemConstraintForce(ViewProviderFemConstraintForce *C
     QMetaObject::connectSlotsByName(this);
 
     // Create a context menu for the listview of the references
-    QAction* action = new QAction(tr("Delete"), ui->listReferences);
-    action->connect(action, SIGNAL(triggered()),
-                    this, SLOT(onReferenceDeleted()));
-    ui->listReferences->addAction(action);
+    // actionSel Remove selected reference
+    QAction* actionSel = new QAction(tr("Remove selected reference"), ui->listReferences);
+    actionSel->connect(actionSel, SIGNAL(triggered()),
+                    this, SLOT(onReferenceDeleteSelected()));
+    ui->listReferences->addAction(actionSel);
+    // actionAll Remove all references
+    QAction* actionAll = new QAction(tr("Remove all references"), ui->listReferences);
+    actionAll->connect(actionAll, SIGNAL(triggered()),
+                    this, SLOT(onReferenceDeleteAll()));
+    ui->listReferences->addAction(actionAll);
+    // add context menu
     ui->listReferences->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     connect(ui->spinForce, SIGNAL(valueChanged(double)),
@@ -243,11 +250,15 @@ void TaskFemConstraintForce::onForceChanged(double f)
     pcConstraint->Force.setValue(f);
 }
 
-void TaskFemConstraintForce::onReferenceDeleted() {
+void TaskFemConstraintForce::onReferenceDeleteSelected() {
     int row = ui->listReferences->currentIndex().row();
     TaskFemConstraint::onReferenceDeleted(row);
     ui->listReferences->model()->removeRow(row);
     ui->listReferences->setCurrentRow(0, QItemSelectionModel::ClearAndSelect);
+}
+
+void TaskFemConstraintForce::onReferenceDeleteAll() {
+    ui->listReferences->clear();  // only the list will be cleared not the force arrows on the shape
 }
 
 void TaskFemConstraintForce::onButtonDirection(const bool pressed) {

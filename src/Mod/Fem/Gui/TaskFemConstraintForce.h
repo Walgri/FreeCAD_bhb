@@ -58,7 +58,8 @@ public:
     bool getReverse(void) const;
 
 private Q_SLOTS:
-    void onReferenceDeleted(void);
+    void onReferenceDeleteSelected(void);
+    void onReferenceDeleteAll(void);
     void onForceChanged(double);
     void onButtonDirection(const bool pressed = true);
     void onCheckReverse(bool);
