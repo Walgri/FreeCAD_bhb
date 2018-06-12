@@ -81,9 +81,7 @@ def decode(name):
 
 def read(filename):
     "reads a FCMat file and returns a dictionary from it"
-    if isinstance(filename, unicode):
-        import sys
-        filename = filename.encode(sys.getfilesystemencoding())
+    print(type(filename))
     f = pythonopen(filename)
     d = {}
     l = 0
@@ -124,10 +122,7 @@ def write(filename, dictionary):
             user[k] = i
     # write header
     rev = FreeCAD.ConfigGet("BuildVersionMajor") + "." + FreeCAD.ConfigGet("BuildVersionMinor") + " " + FreeCAD.ConfigGet("BuildRevision")
-    if isinstance(filename, unicode):
-        import sys
-        filename = filename.encode(sys.getfilesystemencoding())
-    print(filename)
+    print(type(filename))
     f = pythonopen(filename, "wb")
     f.write("; " + header["CardName"].encode("utf8") + "\n")
     f.write("; " + header["AuthorAndLicense"].encode("utf8") + "\n")

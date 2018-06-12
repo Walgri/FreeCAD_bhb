@@ -26,6 +26,7 @@ import FreeCAD
 import FreeCADGui
 from Material import getMaterialAttributeStructure
 import os
+import six  # to check on string type in Py2 and Py3
 from PySide import QtCore, QtGui
 # from PySide import QtUiTools, QtSvg
 import sys
@@ -149,13 +150,16 @@ class MaterialEditor:
                 for f in os.listdir(p):
                     b, e = os.path.splitext(f)
                     if e.upper() == ".FCMAT":
+                        # print(type(b))
+                        if isinstance(b, str):  # checks for string, returns false for a unicode string
+                            b = b.decode('utf-8')  # qt needs unicode to display the special characters the right way
                         self.cards[b] = p + os.sep + f
         # self.outputCards()
         if self.cards:
             self.widget.ComboMaterial.clear()
             self.widget.ComboMaterial.addItem("")  # add a blank item first
             for k, i in self.cards.items():
-                self.widget.ComboMaterial.addItem(k)
+                self.widget.ComboMaterial.addItem(k)  # all keys in self.cards are unicode
 
     def updateContents(self, data):
         '''updates the contents of the editor with the given data, can be:
@@ -173,8 +177,10 @@ class MaterialEditor:
                     slot.setText(1, i)
                 else:
                     self.addCustomProperty(k, i)
-        elif isinstance(data, unicode):
-            k = str(data)
+        elif isinstance(data, six.string_types):  # use six to be sure to be Python 2.7 and 3.x compatible
+            k = data
+            print(k)
+            print(self.cards[k])
             if k:
                 if k in self.cards:
                     import importFCMat
@@ -289,7 +295,8 @@ class MaterialEditor:
                 c = w.child(i2)
                 # TODO the following should be translated back to english, since text(0) could be translated
                 matkey = self.collapseKey(str(c.text(0)))
-                matvalue = unicode(c.text(1))
+                # matvalue = unicode(c.text(1))
+                matvalue = c.text(1).decode('utf-8')
                 if matvalue or (matkey == 'Name'):
                     # use only keys which are not empty and the name even if empty
                     d[matkey] = matvalue
