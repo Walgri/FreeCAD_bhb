@@ -198,51 +198,12 @@ class MaterialEditor:
                     if d:
                         self.updateContents(d)
 
-    def getMaterialResources(self):
-        self.fem_prefs = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Material/Resources")
-        use_built_in_materials = self.fem_prefs.GetBool("UseBuiltInMaterials", True)
-        use_mat_from_config_dir = self.fem_prefs.GetBool("UseMaterialsFromConfigDir", True)
-        use_mat_from_custom_dir = self.fem_prefs.GetBool("UseMaterialsFromCustomDir", True)
-        if use_mat_from_custom_dir:
-            custom_mat_dir = self.fem_prefs.GetString("CustomMaterialsDir", "")
-        # later found cards with same name will override cards
-        # FreeCAD returns paths with / at the end, thus not os.sep is needed on first +
-        self.resources = []
-        if use_built_in_materials:
-            self.resources.append(FreeCAD.getResourceDir() + "Mod" + os.sep + "Material" + os.sep + "StandardMaterial")
-        if use_mat_from_config_dir:
-            self.resources.append(FreeCAD.ConfigGet("UserAppData") + "Material")
-        if use_mat_from_custom_dir:
-            custom_mat_dir = self.fem_prefs.GetString("CustomMaterialsDir", "")
-            if os.path.exists(custom_mat_dir):
-                self.resources.append(custom_mat_dir)
-        self.outputResources()
-
-    def outputResources(self):
-        print('locations to look for material cards:')
-        for path in self.resources:
-            print('  ' + path)
-        print('\n')
-
-    def outputCards(self):
-        print('material cards:')
-        for card in sorted(self.cards.keys()):
-            print('  ' + card + ': ' + self.cards[card])
-        print('\n')
-
     def updateCards(self):
 
         '''updates the contents of the materials combo with existing material cards'''
 
-        self.getMaterialResources()
-        self.cards = {}
-        for p in self.resources:
-            if os.path.exists(p):
-                for f in sorted(os.listdir(p)):
-                    b, e = os.path.splitext(f)
-                    if e.upper() == ".FCMAT":
-                        self.cards[b] = p + os.sep + f
-        # self.outputCards()
+        from materialutils import get_material_cards as getcards
+        self.cards = getcards()
         if self.cards:
             self.widget.ComboMaterial.clear()
             self.widget.ComboMaterial.addItem("")  # add a blank item first
