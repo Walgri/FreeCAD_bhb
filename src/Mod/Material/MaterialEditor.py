@@ -55,13 +55,13 @@ class MaterialEditor:
         self.widget.ButtonDeleteProperty.setEnabled(False)
         self.widget.standardButtons.button(QtGui.QDialogButtonBox.Ok).setAutoDefault(False)
         self.widget.standardButtons.button(QtGui.QDialogButtonBox.Cancel).setAutoDefault(False)
-        self.updateCards()
+        self.updateCardsInEditor()
         self.widget.Editor.header().resizeSection(0, 200)
         self.widget.Editor.expandAll()
         self.widget.Editor.setFocus()
         # TODO allow to enter a custom property by pressing Enter in the lineedit (currently closes the dialog)
         self.widget.Editor.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        QtCore.QObject.connect(self.widget.ComboMaterial, QtCore.SIGNAL("currentIndexChanged(QString)"), self.updateContents)
+        QtCore.QObject.connect(self.widget.ComboMaterial, QtCore.SIGNAL("currentIndexChanged(QString)"), self.updateContentsInEditor)
         QtCore.QObject.connect(self.widget.ButtonURL, QtCore.SIGNAL("clicked()"), self.openProductURL)
         QtCore.QObject.connect(self.widget.standardButtons, QtCore.SIGNAL("accepted()"), self.accept)
         QtCore.QObject.connect(self.widget.standardButtons, QtCore.SIGNAL("rejected()"), self.reject)
@@ -86,7 +86,7 @@ class MaterialEditor:
         elif self.material:
             d = self.material
         if d:
-            self.updateContents(d)
+            self.updateContentsInEditor(d)
 
     def addPropertiesToGroup(self, propertygroup=None):
         "Adds property to a known group in Tree widges"
@@ -141,8 +141,7 @@ class MaterialEditor:
             print('  ' + card + ': ' + self.cards[card])
         print('\n')
 
-    def updateCards(self):
-        "updates the contents of the materials combo with existing material cards"
+    def getMaterialCards(self):
         self.getMaterialResources()
         self.cards = {}
         for p in self.resources:
@@ -155,22 +154,27 @@ class MaterialEditor:
                             b = b.decode('utf-8')  # qt needs unicode to display the special characters the right way
                         self.cards[b] = p + os.sep + f
         # self.outputCards()
+
+    def updateCardsInEditor(self):
+        "updates the contents of the materials combo with existing material cards"
+        self.getMaterialCards()
         if self.cards:
             self.widget.ComboMaterial.clear()
             self.widget.ComboMaterial.addItem("")  # add a blank item first
             for k, i in self.cards.items():
                 self.widget.ComboMaterial.addItem(k)  # all keys in self.cards are unicode
 
-    def updateContents(self, data):
+    def updateContentsInEditor(self, data):
         '''updates the contents of the editor with the given data, can be:
-           - the name of a card, if material is changed in editors combo box
-           - a dictionary, if the editor was called with data'''
+           - a dictionary, if the editor was called  with data
+           - a string, the name of a card, if material is changed in editors combo box
+           the material property keys where added to the editor already by the def addPropertiesToGroup
+           not known material proprty keys will be added to the user defined group'''
         # print type(data)
         if isinstance(data, dict):
             self.clearEditor()
             for k, i in data.items():
                 k = self.expandKey(k)
-                # most material dict keys are added with addPropertiesToGroup, see tuple with all these properties at module end
                 slot = self.widget.Editor.findItems(k, QtCore.Qt.MatchRecursive, 0)
                 if len(slot) == 1:
                     slot = slot[0]
@@ -186,7 +190,7 @@ class MaterialEditor:
                     import importFCMat
                     d = importFCMat.read(self.cards[k])
                     if d:
-                        self.updateContents(d)
+                        self.updateContentsInEditor(d)
 
     def openProductURL(self):
         "opens the contents of the ProductURL field in an external browser"
@@ -305,7 +309,7 @@ class MaterialEditor:
 
         # ??? after return ???
         if d:
-            self.updateContents(d)
+            self.updateContentsInEditor(d)
         self.widget.Editor.topLevelItem(6).child(4).setToolTip(1, self.getPatternsList())
 
     def outputDict(self, d):
@@ -336,7 +340,7 @@ class MaterialEditor:
             import importFCMat
             d = importFCMat.read(filename)
             if d:
-                self.updateContents(d)
+                self.updateContentsInEditor(d)
 
     def savefile(self):
         "Saves a FCMat file"
