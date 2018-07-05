@@ -141,7 +141,53 @@ class MaterialEditor:
             print('  ' + card + ': ' + self.cards[card])
         print('\n')
 
+    def getAndOutputAllCardData(self):
+        print('\n\n\nMYSTART')
+        # get all registered material property keys
+        registedCardKeys = []
+        for gr in getMaterialAttributeStructure():
+            for key in gr[1]:
+                registedCardKeys.append(key)
+        registedCardKeys = sorted(registedCardKeys)
+
+        # get all data from all known cards
+        self.allCardsAndData = {}  # {cardfilename: ['path', materialdict]}
+        for card in self.cards:
+            import importFCMat
+            d = importFCMat.read(self.cards[card])
+            self.allCardsAndData[card] = [self.cards[card], d]
+        '''
+        for card in self.allCardsAndData:
+            print(card)
+            print(self.allCardsAndData[card][0])
+            print(self.allCardsAndData[card][1])
+            print('\n')
+        '''
+
+        # find not registered and registered keys in the used data
+        usedAndRegisteredCardKeys = []
+        usedAndNotRegisteredCardKeys = []
+        registeredAndNotUsedCardKeys = []
+        for card in self.allCardsAndData:
+            for k in self.allCardsAndData[card][1]:
+                if k in registedCardKeys:
+                    usedAndRegisteredCardKeys.append(k)
+                else:
+                    usedAndNotRegisteredCardKeys.append(k)
+        for k in registedCardKeys:
+            if (k not in usedAndRegisteredCardKeys) and (k not in usedAndNotRegisteredCardKeys):
+                registeredAndNotUsedCardKeys.append(k)
+        usedAndRegisteredCardKeys = sorted(list(set(usedAndRegisteredCardKeys)))
+        usedAndNotRegisteredCardKeys = sorted(list(set(usedAndNotRegisteredCardKeys)))
+        registeredAndNotUsedCardKeys = sorted(list(set(registeredAndNotUsedCardKeys)))
+        print(usedAndRegisteredCardKeys)
+        print(usedAndNotRegisteredCardKeys)
+        print(registeredAndNotUsedCardKeys)
+        # still there may be lots of properties in the template which are not used in other materials but the tmplate is handeled here like a material
+        print('MYEND\n\n\n')
+
     def getMaterialCards(self):
+        # no duplicates, an existing card will be overwritten!
         self.getMaterialResources()
         self.cards = {}
         for p in self.resources:
@@ -154,6 +200,8 @@ class MaterialEditor:
                             b = b.decode('utf-8')  # qt needs unicode to display the special characters the right way
                         self.cards[b] = p + os.sep + f
         # self.outputCards()
+        self.getAndOutputAllCardData()
+        # print(self.cards)
 
     def updateCardsInEditor(self):
         "updates the contents of the materials combo with existing material cards"
