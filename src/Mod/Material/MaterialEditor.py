@@ -109,6 +109,7 @@ class MaterialEditor:
                     i.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
                     i.setText(0, key)
 
+<<<<<<< HEAD
     def getMaterialResources(self):
         self.fem_prefs = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Material/Resources")
         use_built_in_materials = self.fem_prefs.GetBool("UseBuiltInMaterials", True)
@@ -203,6 +204,8 @@ class MaterialEditor:
         self.getAndOutputAllCardData()
         # print(self.cards)
 
+=======
+>>>>>>> moreMayBeToMuchMaterialStuff
     def updateCardsInEditor(self):
         "updates the contents of the materials combo with existing material cards"
         self.getMaterialCards()
