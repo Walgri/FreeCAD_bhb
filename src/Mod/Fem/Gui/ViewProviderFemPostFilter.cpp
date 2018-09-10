@@ -154,7 +154,7 @@ PROPERTY_SOURCE(FemGui::ViewProviderFemPostGlyph, FemGui::ViewProviderFemPostObj
 
 ViewProviderFemPostGlyph::ViewProviderFemPostGlyph() {
 
-    sPixmap = "FemWorkbench";  // icon will be added later
+    sPixmap = "fem-post-filter-glyph";
 }
 
 ViewProviderFemPostGlyph::~ViewProviderFemPostGlyph() {
