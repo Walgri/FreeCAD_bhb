@@ -149,3 +149,16 @@ void ViewProviderFemPostCut::setupTaskDialog(TaskDlgPost* dlg) {
     //add the display options
     FemGui::ViewProviderFemPostObject::setupTaskDialog(dlg);
 }
+
+PROPERTY_SOURCE(FemGui::ViewProviderFemPostGlyph, FemGui::ViewProviderFemPostObject)
+
+ViewProviderFemPostGlyph::ViewProviderFemPostGlyph() {
+
+    sPixmap = "FemWorkbench";  // icon will be added later
+}
+
+ViewProviderFemPostGlyph::~ViewProviderFemPostGlyph() {
+
+}
+
+// task dialog for glyph filter will be added later
