@@ -161,4 +161,11 @@ ViewProviderFemPostGlyph::~ViewProviderFemPostGlyph() {
 
 }
 
-// task dialog for glyph filter will be added later
+void ViewProviderFemPostGlyph::setupTaskDialog(TaskDlgPost* dlg) {
+
+    //add the function box
+    dlg->appendBox(new TaskPostGlyph(dlg->getView()));
+
+    //add the display options
+    FemGui::ViewProviderFemPostObject::setupTaskDialog(dlg);
+}

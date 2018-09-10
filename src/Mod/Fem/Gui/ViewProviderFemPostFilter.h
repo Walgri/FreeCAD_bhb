@@ -114,6 +114,9 @@ public:
     /// constructor.
     ViewProviderFemPostGlyph();
     ~ViewProviderFemPostGlyph();
+
+protected:
+    virtual void setupTaskDialog(TaskDlgPost* dlg);
 };
 
 } //namespace FemGui
