@@ -1265,6 +1265,9 @@ void TaskPostCut::on_FunctionBox_currentIndexChanged(int idx) {
 }
 
 //############################################################################################
+// glyph filter
+// spinbox min, slider, spinbox max
+// spinbox scale factor
 
 TaskPostGlyph::TaskPostGlyph(ViewProviderDocumentObject* view, QWidget* parent) :
     TaskPostBox(view, Gui::BitmapFactory().pixmap("fem-femmesh-create-node-by-poly"), tr("Glyph options"), parent) {
