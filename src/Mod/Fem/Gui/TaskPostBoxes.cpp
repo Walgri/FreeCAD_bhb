@@ -73,6 +73,7 @@
 #include <App/PropertyStandard.h>
 #include <Base/Quantity.h>
 
+
 using namespace FemGui;
 using namespace Gui;
 
@@ -322,13 +323,20 @@ void TaskPostBox::recompute() {
         App::GetApplication().getActiveDocument()->recompute();
 }
 
-void TaskPostBox::updateEnumerationList(App::PropertyEnumeration& prop, QComboBox* box) {
+void TaskPostBox::updateEnumerationList(App::PropertyEnumeration& prop, QComboBox* box, unsigned int idx = 0) {
 
     QStringList list;
     std::vector<std::string> vec = prop.getEnumVector();
+    Base::Console().Message("\nUpdate QComboBox with App::PropertyEnumeration:\n");
+    int propCurrentIdx = prop.getValue();
+    std::string propCurrentValue = vec[propCurrentIdx];
+    Base::Console().Message("  Current property informations: Index = %i, Value = %s\n", propCurrentIdx, propCurrentValue.c_str());
+    Base::Console().Message("  Enumerations: ");
     for(std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); ++it ) {
         list.push_back(QString::fromStdString(*it));
+        Base::Console().Message("%s, ", (*it).c_str());
     }
+    Base::Console().Message("\n");
 
     int index = prop.getValue();
     // be aware the QComboxBox might be connected to the Property,
@@ -936,9 +944,17 @@ TaskPostScalarClip::TaskPostScalarClip(ViewProviderDocumentObject* view, QWidget
     QMetaObject::connectSlotsByName(this);
     this->groupLayout()->addWidget(proxy);
 
+    App::PropertyEnumeration& propScalars = getTypedObject<Fem::FemPostScalarClipFilter>()->Scalars;  // warum nur als Ref moeglich
+    std::vector<std::string> vec = propScalars.getEnumVector();
+    int propCurrentIdx = propScalars.getValue();
+    std::string propCurrentValue = vec[propCurrentIdx];
+    Base::Console().Message("Current property informations: Index = %i, Value = %s\n", propCurrentIdx, propCurrentValue.c_str());
+
     //load the default values
-    updateEnumerationList(getTypedObject<Fem::FemPostScalarClipFilter>()->Scalars, ui->Scalar);
+    updateEnumerationList(getTypedObject<Fem::FemPostScalarClipFilter>()->Scalars, ui->Scalar, propCurrentIdx);
     ui->InsideOut->setChecked(static_cast<Fem::FemPostScalarClipFilter*>(getObject())->InsideOut.getValue());
+
+    Base::Console().Message("Current property informations: Index = %i\n", (getTypedObject<Fem::FemPostScalarClipFilter>()->Scalars).getValue());
 
     App::PropertyFloatConstraint& value = static_cast<Fem::FemPostScalarClipFilter*>(getObject())->Value;
     //don't forget to sync the slider
@@ -961,7 +977,7 @@ void TaskPostScalarClip::applyPythonCode() {
 }
 
 void TaskPostScalarClip::on_Scalar_currentIndexChanged(int idx) {
-
+    Base::Console().Message("Index = %i\n", idx);
     static_cast<Fem::FemPostScalarClipFilter*>(getObject())->Scalars.setValue(idx);
     recompute();
 
@@ -1031,6 +1047,8 @@ TaskPostWarpVector::TaskPostWarpVector(ViewProviderDocumentObject* view, QWidget
     this->groupLayout()->addWidget(proxy);
 
     // load the default values for warp display
+    int idx = static_cast<Fem::FemPostWarpVectorFilter*>(getObject())->Vector.getValue();
+    Base::Console().Message("init: idx: %i: \n", idx);
     updateEnumerationList(getTypedObject<Fem::FemPostWarpVectorFilter>()->Vector, ui->Vector);
     double warp_factor = static_cast<Fem::FemPostWarpVectorFilter*>(getObject())->Factor.getValue(); // get the standard warp factor
 
@@ -1072,7 +1090,7 @@ void TaskPostWarpVector::applyPythonCode() {
 }
 
 void TaskPostWarpVector::on_Vector_currentIndexChanged(int idx) {
-    // combobox to choose the result to warp
+    // combobox to choose the result vector to warp
 
     static_cast<Fem::FemPostWarpVectorFilter*>(getObject())->Vector.setValue(idx);
     recompute();
