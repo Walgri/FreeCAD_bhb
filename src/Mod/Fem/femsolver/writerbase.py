@@ -28,56 +28,17 @@ __url__ = "http://www.freecadweb.org"
 
 import FreeCAD
 import femmesh.meshtools as FemMeshTools
+import femtools.femutils as femutils
 import os
 
 
 class FemInputWriter():
-    def __init__(
-        self,
-        analysis_obj,
-        solver_obj,
-        mesh_obj,
-        matlin_obj,
-        matnonlin_obj,
-        fixed_obj,
-        displacement_obj,
-        contact_obj,
-        planerotation_obj,
-        transform_obj,
-        selfweight_obj,
-        force_obj,
-        pressure_obj,
-        temperature_obj,
-        heatflux_obj,
-        initialtemperature_obj,
-        beamsection_obj,
-        beamrotation_obj,
-        shellthickness_obj,
-        fluidsection_obj,
-        dir_name=None
-    ):
+    def __init__(self, analysis_obj, solver_obj, mesh_obj, dir_name):
         # class attributes from parameter values
         self.analysis = analysis_obj
         self.solver_obj = solver_obj
         self.analysis_type = self.solver_obj.AnalysisType
         self.mesh_object = mesh_obj
-        self.material_objects = matlin_obj
-        self.material_nonlinear_objects = matnonlin_obj
-        self.fixed_objects = fixed_obj
-        self.displacement_objects = displacement_obj
-        self.contact_objects = contact_obj
-        self.planerotation_objects = planerotation_obj
-        self.transform_objects = transform_obj
-        self.selfweight_objects = selfweight_obj
-        self.force_objects = force_obj
-        self.pressure_objects = pressure_obj
-        self.temperature_objects = temperature_obj
-        self.heatflux_objects = heatflux_obj
-        self.initialtemperature_objects = initialtemperature_obj
-        self.beamsection_objects = beamsection_obj
-        self.beamrotation_objects = beamrotation_obj
-        self.fluidsection_objects = fluidsection_obj
-        self.shellthickness_objects = shellthickness_obj
         self.dir_name = dir_name
         # if dir_name was not given or does not exist empty we gone create a temporary one
         # this makes sure the analysis can be run even on wired situation
@@ -87,7 +48,26 @@ class FemInputWriter():
         if not os.path.isdir(self.dir_name):
             os.mkdir(self.dir_name)
 
-        # new class attributes
+        # collect members
+        self.material_objects = self.get_several_member('Fem::Material')
+        self.material_nonlinear_objects = self.get_several_member('Fem::MaterialMechanicalNonlinear')
+        self.fixed_objects = self.get_several_member('Fem::ConstraintFixed')
+        self.displacement_objects = self.get_several_member('Fem::ConstraintDisplacement')
+        self.contact_objects = self.get_several_member('Fem::ConstraintContact')
+        self.planerotation_objects = self.get_several_member('Fem::ConstraintPlaneRotation')
+        self.transform_objects = self.get_several_member('Fem::ConstraintTransform')
+        self.selfweight_objects = self.get_several_member('Fem::ConstraintSelfWeight')
+        self.force_objects = self.get_several_member('Fem::ConstraintForce')
+        self.pressure_objects = self.get_several_member('Fem::ConstraintPressure')
+        self.temperature_objects = self.get_several_member('Fem::ConstraintTemperature')
+        self.heatflux_objects = self.get_several_member('Fem::ConstraintHeatflux')
+        self.initialtemperature_objects = self.get_several_member('Fem::ConstraintInitialTemperature')
+        self.beamsection_objects = self.get_several_member('Fem::FemElementGeometry1D')
+        self.beamrotation_objects = self.get_several_member('Fem::FemElementRotation1D')
+        self.fluidsection_objects = self.get_several_member('Fem::FemElementFluid1D')
+        self.shellthickness_objects = self.get_several_member('Fem::FemElementGeometry2D')
+
+        # other new class attributes
         self.fc_ver = FreeCAD.Version()
         self.ccx_nall = 'Nall'
         self.ccx_eall = 'Eall'
@@ -293,5 +273,8 @@ class FemInputWriter():
             if not self.femelement_edges_table:
                 self.femelement_edges_table = FemMeshTools.get_femelement_edges_table(self.femmesh)
             FemMeshTools.get_femelement_sets(self.femmesh, self.femelement_edges_table, self.material_objects)
+
+    def get_several_member(self, t):
+        return femutils.get_several_member(self.analysis, t)
 
 ##  @}

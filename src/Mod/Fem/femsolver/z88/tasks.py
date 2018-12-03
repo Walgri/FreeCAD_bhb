@@ -53,30 +53,15 @@ class Prepare(run.Prepare):
 
     def run(self):
         self.pushStatus("Preparing input files...\n")
-        c = _Container(self.analysis)
-        w = writer.FemInputWriterZ88(
-            self.analysis,
-            self.solver,
-            c.mesh,
-            c.materials_linear,
-            c.materials_nonlinear,
-            c.constraints_fixed,
-            c.constraints_displacement,
-            c.constraints_contact,
-            c.constraints_planerotation,
-            c.constraints_transform,
-            c.constraints_selfweight,
-            c.constraints_force,
-            c.constraints_pressure,
-            c.constraints_temperature,
-            c.constraints_heatflux,
-            c.constraints_initialtemperature,
-            c.beam_sections,
-            c.beam_rotations,
-            c.shell_thicknesses,
-            c.fluid_sections,
-            self.directory
-        )
+        # see comment in CalculiX tasks module
+        mesh = None
+        for m in self.analysis.Group:
+            if m.isDerivedFrom("Fem::FemMeshObject"):
+                if not mesh:
+                    mesh = m
+                else:
+                    raise Exception('FEM: Multiple mesh in analysis not yet supported!')
+        w = writer.FemInputWriterCcx(self.analysis, self.solver, mesh, self.directory)
         path = w.write_z88_input()
         # report to user if task succeeded
         if path is not None:
@@ -146,44 +131,5 @@ class Results(run.Results):
         else:
             raise Exception(
                 'FEM: No results found at {}!'.format(disp_result_file))
-
-
-class _Container(object):
-
-    def __init__(self, analysis):
-        self.analysis = analysis
-
-        # get mesh
-        mesh, message = femutils.get_mesh_to_solve(self.analysis)
-        if mesh is not None:
-            self.mesh = mesh
-        else:
-            if FreeCAD.GuiUp:
-                QtGui.QMessageBox.critical(None, "Missing prerequisite", message)
-            raise Exception(message + '\n')
-
-        # get member, empty lists are not supported by z88
-        self.materials_linear = self.get_several_member('Fem::Material')
-        self.materials_nonlinear = []
-
-        self.beam_sections = self.get_several_member('Fem::FemElementGeometry1D')
-        self.beam_rotations = []
-        self.fluid_sections = []
-        self.shell_thicknesses = self.get_several_member('Fem::FemElementGeometry2D')
-
-        self.constraints_contact = []
-        self.constraints_displacement = []
-        self.constraints_fixed = self.get_several_member('Fem::ConstraintFixed')
-        self.constraints_force = self.get_several_member('Fem::ConstraintForce')
-        self.constraints_heatflux = []
-        self.constraints_initialtemperature = []
-        self.constraints_pressure = []
-        self.constraints_planerotation = []
-        self.constraints_selfweight = []
-        self.constraints_temperature = []
-        self.constraints_transform = []
-
-    def get_several_member(self, t):
-        return femutils.get_several_member(self.analysis, t)
 
 ##  @}
