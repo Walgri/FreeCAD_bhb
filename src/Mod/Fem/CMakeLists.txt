@@ -212,6 +212,8 @@ SET(FemObjectsScripts_SRCS
     femobjects/_FemResultMechanical.py
     femobjects/_FemSolverCalculix.py
     femobjects/FemConstraint.py
+    femobjects/_FemBodySource.py
+    femobjects/_FemInitialValue.py
 )
 
 SET(FemAllScripts
@@ -293,6 +295,9 @@ SET(FemGuiScripts_SRCS
     femguiobjects/_ViewProviderFemSolverCalculix.py
     femguiobjects/FemSelectionWidgets.py
     femguiobjects/ViewProviderFemConstraint.py
+    femguiobjects/_ViewProviderFemBodySource.py
+    femguiobjects/_ViewProviderFemInitialValue.py
+    femguiobjects/BodyConstraintWidget.py
 )
 
 
