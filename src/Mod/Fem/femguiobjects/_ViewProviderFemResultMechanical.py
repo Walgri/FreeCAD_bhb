@@ -360,6 +360,28 @@ class _TaskPanelFemResultShow:
         exy = np.array(self.result_obj.NodeStrainXY)
         eyz = np.array(self.result_obj.NodeStrainYZ)
         ezx = np.array(self.result_obj.NodeStrainZX)
+
+        # Display of Reinforcement Ratios and Mohr Coulomb Criterion
+        rx = np.array(self.result_obj.ReinforcementRatio_x)
+        ry = np.array(self.result_obj.ReinforcementRatio_y)
+        rz = np.array(self.result_obj.ReinforcementRatio_z)
+        mc = np.array(self.result_obj.MohrCoulomb)
+
+        ps1vector = np.array(self.result_obj.PS1Vector)
+        s1x = np.array(ps1vector[:, 0])
+        s1y = np.array(ps1vector[:, 1])
+        s1z = np.array(ps1vector[:, 2])
+
+        ps2vector = np.array(self.result_obj.PS2Vector)
+        s2x = np.array(ps2vector[:, 0])
+        s2y = np.array(ps2vector[:, 1])
+        s2z = np.array(ps2vector[:, 2])
+
+        ps3vector = np.array(self.result_obj.PS1Vector)
+        s3x = np.array(ps3vector[:, 0])
+        s3y = np.array(ps3vector[:, 1])
+        s3z = np.array(ps3vector[:, 2])
+
         userdefined_eq = self.form.user_def_eq.toPlainText()  # Get equation to be used
         UserDefinedFormula = eval(userdefined_eq).tolist()
         self.result_obj.UserDefined = UserDefinedFormula
@@ -372,7 +394,8 @@ class _TaskPanelFemResultShow:
             self.mesh_obj.ViewObject.setNodeColorByScalars(self.result_obj.NodeNumbers, UserDefinedFormula)
         self.set_result_stats("", minm, avg, maxm)
         QtGui.QApplication.restoreOverrideCursor()
-        del x, y, z, T, Von, Peeq, P1, P2, P3, sxx, syy, szz, sxy, syz, szx, exx, eyy, ezz, exy, eyz, ezx, MF, NP  # Dummy use of the variables to get around flake8 error
+        # Dummy use of the variables to get around flake8 error
+        del x, y, z, T, Von, Peeq, P1, P2, P3, sxx, syy, szz, sxy, syz, szx, exx, eyy, ezz, exy, eyz, ezx, MF, NP, rx, ry, rz, mc, s1x, s1y, s1z, s2x, s2y, s2z, s3x, s3y, s3z
 
     def select_displacement_type(self, disp_type):
         QApplication.setOverrideCursor(Qt.WaitCursor)
