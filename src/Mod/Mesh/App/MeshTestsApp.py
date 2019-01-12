@@ -1,13 +1,19 @@
 #   (c) Juergen Riegel (juergen.riegel@web.de) 2007      LGPL
 
-import FreeCAD, os, sys, unittest, Mesh
-import time, tempfile, math
+import os
+import sys
+import unittest
+import time
+import tempfile
+import math
 # http://python-kurs.eu/threads.php
 try:
     import _thread as thread
 except:
     import thread
 
+import FreeCAD
+import Mesh
 
 #---------------------------------------------------------------------------
 # define the functions to test the FreeCAD mesh module
