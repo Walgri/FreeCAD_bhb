@@ -3,7 +3,8 @@
 # (c) 2001 Juergen Riegel
 # License LGPL
 
-import FreeCAD, FreeCADGui
+import FreeCAD
+import FreeCADGui
 
 class CmdAddonMgr:
     def Activated(self):
