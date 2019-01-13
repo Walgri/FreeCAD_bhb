@@ -22,9 +22,14 @@
 #*   Milos Koutny 2010                                                     *
 #***************************************************************************/
 
-import FreeCAD, Part, os, FreeCADGui, __builtin__
-from FreeCAD import Base
+import Part
+import os
 from math import *
+import __builtin__
+
+import FreeCAD
+import FreeCADGui
+from FreeCAD import Base
 import ImportGui
 
 ##########################################################
