@@ -19,7 +19,11 @@
 #   USA                                                                   *
 #**************************************************************************
 
-import FreeCAD, os, sys, unittest, WebGui
+import os
+import sys
+import unittest
+import WebGui
+import FreeCAD
 
 class WebGuiTestCases(unittest.TestCase):
     def testHtmlCase(self):
