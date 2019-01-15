@@ -269,6 +269,7 @@ Gui::MenuItem* Workbench::setupMenuBar() const
            << "FEM_SolverCalculiX"
            << "FEM_SolverElmer"
            << "FEM_SolverZ88"
+           << "FEM_SolverOOFEM"
            << "Separator"
            << "FEM_EquationHeat"
            << "FEM_EquationElasticity"
