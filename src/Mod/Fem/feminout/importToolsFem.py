@@ -222,7 +222,18 @@ def fill_femresult_mechanical(res_obj, result_set):
         for k, v in disp.items():
             displacement.append(v)
 
-        res_obj.DisplacementVectors = list(map((lambda x: x), disp.values()))
+        x_max, y_max, z_max = map(max, zip(*displacement))
+        if eigenmode_number > 0:
+            span = get_span(res_obj.Mesh.FemMesh.Nodes.items())
+            max_disp = max(x_max, y_max, z_max)
+            # Allow for max displacement to be 0.1% of the span
+            # FIXME - add to Preferences
+            max_allowed_disp = 0.001 * span
+            scale = max_allowed_disp / max_disp
+            res_obj.EigenmodeScaleFactor = scale
+            scale = 1.0
+
+        res_obj.DisplacementVectors = list(map((lambda x: x * scale), disp.values()))
         res_obj.NodeNumbers = list(disp.keys())
 
         # fill res_obj.NodeStressXX etc if they exist in result_set
