@@ -242,6 +242,54 @@ def fill_femresult_mechanical(res_obj, result_set):
         res_obj.DisplacementVectors = list(map((lambda x: x * scale), disp.values()))
         res_obj.NodeNumbers = list(disp.keys())
 
+        # fill res_obj.NodeStressXX etc if they exist in result_set
+        # list values are just added
+        # Should we gone check if the key in stress and strain dict is the same as the number in NodeNumbers?
+        if 'stress' in result_set:
+            stress = result_set['stress']
+            Sxx = []
+            Syy = []
+            Szz = []
+            Sxy = []
+            Syz = []
+            Szx = []
+            for i, values_S in enumerate(stress.values()):  # values_S .. stresstuple .. (Sxx, Syy, Szz, Sxy, Syz, Szx)
+                Sxx.append(values_S[0])
+                Syy.append(values_S[1])
+                Szz.append(values_S[2])
+                Sxy.append(values_S[3])
+                Syz.append(values_S[4])
+                Szx.append(values_S[5])
+            res_obj.NodeStressXX = Sxx
+            res_obj.NodeStressYY = Syy
+            res_obj.NodeStressZZ = Szz
+            res_obj.NodeStressXY = Sxy
+            res_obj.NodeStressYZ = Syz
+            res_obj.NodeStressZX = Szx
+
+        # fill res_obj.NodeStrainXX etc if they exist in result_set
+        if 'strain' in result_set:
+            strain = result_set['strain']
+            Exx = []
+            Eyy = []
+            Ezz = []
+            Exy = []
+            Eyz = []
+            Ezx = []
+            for i, values_E in enumerate(strain.values()):  # values_E .. straintuple .. (Exx, Eyy, Ezz, Exy, Eyz, Ezx)
+                Exx.append(values_E[0])
+                Eyy.append(values_E[1])
+                Ezz.append(values_E[2])
+                Exy.append(values_E[3])
+                Eyz.append(values_E[4])
+                Ezx.append(values_E[5])
+            res_obj.NodeStrainXX = Exx
+            res_obj.NodeStrainYY = Eyy
+            res_obj.NodeStrainZZ = Ezz
+            res_obj.NodeStrainXY = Exy
+            res_obj.NodeStrainYZ = Eyz
+            res_obj.NodeStrainZX = Ezx
+
         # fill res_obj.StressVectors if they exist
         if 'stress' in result_set:
             stress = result_set['stress']
