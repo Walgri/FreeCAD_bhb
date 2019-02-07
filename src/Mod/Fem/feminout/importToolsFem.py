@@ -218,10 +218,6 @@ def fill_femresult_mechanical(res_obj, result_set):
     # if disp exists, fill res_obj.NodeNumbers and res_obj.DisplacementVectors as well as stress and strain
     if 'disp' in result_set:
         disp = result_set['disp']
-        displacement = []
-        for k, v in disp.items():
-            displacement.append(v)
-
         res_obj.DisplacementVectors = list(map((lambda x: x), disp.values()))
         res_obj.NodeNumbers = list(disp.keys())
 
