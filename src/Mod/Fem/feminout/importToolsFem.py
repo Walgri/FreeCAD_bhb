@@ -380,50 +380,22 @@ def fill_femresult_mechanical(res_obj, result_set):
                         mc = calculate_mohr_coulomb(prin1, prin3)
                     moc.append(mc)
 
-                if eigenmode_number > 0:
-                    res_obj.PrincipalMax = list(map((lambda x: x * scale),
-                                                    prinstress1))
-                    res_obj.PrincipalMed = list(map((lambda x: x * scale),
-                                                    prinstress2))
-                    res_obj.PrincipalMin = list(map((lambda x: x * scale),
-                                                    prinstress3))
-                    res_obj.MaxShear = list(map((lambda x: x * scale),
-                                                shearstress))
+                res_obj.PrincipalMax = prinstress1
+                res_obj.PrincipalMed = prinstress2
+                res_obj.PrincipalMin = prinstress3
+                res_obj.MaxShear = shearstress
+                #
+                # HarryvL: addtional concrete and principal stress plot
+                # results for use in _ViewProviderFemResultMechanical
+                #
+                res_obj.ReinforcementRatio_x = rhx
+                res_obj.ReinforcementRatio_y = rhy
+                res_obj.ReinforcementRatio_z = rhz
+                res_obj.MohrCoulomb = moc
 
-                    #
-                    # HarryvL: addtional concrete and principal stress
-                    # results for use in _ViewProviderFemResultMechanical
-                    #
-                    res_obj.ReinforcementRatio_x = list(map((lambda x:
-                                                             x * scale), rhx))
-                    res_obj.ReinforcementRatio_y = list(map((lambda x:
-                                                             x * scale), rhy))
-                    res_obj.ReinforcementRatio_z = list(map((lambda x:
-                                                             x * scale), rhz))
-                    res_obj.MohrCoulomb = list(map((lambda x: x * scale), moc))
-
-                    res_obj.PS1Vector = list(map((lambda x: x * scale), ps1v))
-                    res_obj.PS2Vector = list(map((lambda x: x * scale), ps2v))
-                    res_obj.PS3Vector = list(map((lambda x: x * scale), ps3v))
-
-                    res_obj.Eigenmode = eigenmode_number
-                else:
-                    res_obj.PrincipalMax = prinstress1
-                    res_obj.PrincipalMed = prinstress2
-                    res_obj.PrincipalMin = prinstress3
-                    res_obj.MaxShear = shearstress
-                    #
-                    # HarryvL: addtional concrete and principal stress plot
-                    # results for use in _ViewProviderFemResultMechanical
-                    #
-                    res_obj.ReinforcementRatio_x = rhx
-                    res_obj.ReinforcementRatio_y = rhy
-                    res_obj.ReinforcementRatio_z = rhz
-                    res_obj.MohrCoulomb = moc
-
-                    res_obj.PS1Vector = ps1v
-                    res_obj.PS2Vector = ps2v
-                    res_obj.PS3Vector = ps3v
+                res_obj.PS1Vector = ps1v
+                res_obj.PS2Vector = ps2v
+                res_obj.PS3Vector = ps3v
 
         # fill Equivalent Plastic strain if they exist
         if 'peeq' in result_set:
