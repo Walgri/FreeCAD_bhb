@@ -679,7 +679,19 @@ std::map<std::string, std::vector<std::string>> _getFreeCADMechResultProperties(
     "MassFlowRate",
     "NetworkPressure",
     "UserDefined",
-    "Temperature"
+    "Temperature",
+    "NodeStressXX",
+    "NodeStressYY",
+    "NodeStressZZ",
+    "NodeStressXY",
+    "NodeStressYZ",
+    "NodeStressZX",
+    "NodeStrainXX",
+    "NodeStrainYY",
+    "NodeStrainZZ",
+    "NodeStrainXY",
+    "NodeStrainYZ",
+    "NodeStrainZX",
     };
 
     return resFCProperties;
