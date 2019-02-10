@@ -64,14 +64,14 @@ class _FemResultMechanical():
         obj.addProperty("App::PropertyFloatList", "NodeStressYY", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStressZZ", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStressXY", "NodeData", "", True)
+        obj.addProperty("App::PropertyFloatList", "NodeStressXZ", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStressYZ", "NodeData", "", True)
-        obj.addProperty("App::PropertyFloatList", "NodeStressZX", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStrainXX", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStrainYY", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStrainZZ", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStrainXY", "NodeData", "", True)
+        obj.addProperty("App::PropertyFloatList", "NodeStrainXZ", "NodeData", "", True)
         obj.addProperty("App::PropertyFloatList", "NodeStrainYZ", "NodeData", "", True)
-        obj.addProperty("App::PropertyFloatList", "NodeStrainZX", "NodeData", "", True)
 
         # initialize the Stats with the appropriate count of items (see fill_femresult_stats in femresult/resulttools.py)
         zero_list = 39 * [0]
