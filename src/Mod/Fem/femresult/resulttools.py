@@ -262,11 +262,11 @@ def add_von_mises(res_obj):
         res_obj.NodeStressYY,
         res_obj.NodeStressZZ,
         res_obj.NodeStressXY,
-        res_obj.NodeStressYZ,
-        res_obj.NodeStressZX
+        res_obj.NodeStressXZ,
+        res_obj.NodeStressYZ
     )
-    for Sxx, Syy, Szz, Sxy, Syz, Szx in iterator:
-        mstress.append(calculate_von_mises((Sxx, Syy, Szz, Sxy, Syz, Szx)))
+    for Sxx, Syy, Szz, Sxy, Sxz, Syz in iterator:
+        mstress.append(calculate_von_mises((Sxx, Syy, Szz, Sxy, Sxz, Syz)))
     res_obj.StressValues = mstress
     FreeCAD.Console.PrintMessage('Added StressValues (von Mises).\n')
     return res_obj
@@ -282,11 +282,11 @@ def add_principal_stress(res_obj):
         res_obj.NodeStressYY,
         res_obj.NodeStressZZ,
         res_obj.NodeStressXY,
-        res_obj.NodeStressYZ,
-        res_obj.NodeStressZX
+        res_obj.NodeStressXZ,
+        res_obj.NodeStressYZ
     )
-    for Sxx, Syy, Szz, Sxy, Syz, Szx in iterator:
-        prin1, prin2, prin3, shear = calculate_principal_stress((Sxx, Syy, Szz, Sxy, Syz, Szx))
+    for Sxx, Syy, Szz, Sxy, Sxz, Syz in iterator:
+        prin1, prin2, prin3, shear = calculate_principal_stress((Sxx, Syy, Szz, Sxy, Sxz, Syz))
         prinstress1.append(prin1)
         prinstress2.append(prin2)
         prinstress3.append(prin3)
@@ -330,8 +330,8 @@ def calculate_von_mises(stresstuple):
     s22 = stresstuple[1]  # Syy
     s33 = stresstuple[2]  # Szz
     s12 = stresstuple[3]  # Sxy
-    s23 = stresstuple[4]  # Syz
-    s31 = stresstuple[5]  # Szx
+    s31 = stresstuple[4]  # Sxz
+    s23 = stresstuple[5]  # Syz
     s11s22 = pow(s11 - s22, 2)
     s22s33 = pow(s22 - s33, 2)
     s33s11 = pow(s33 - s11, 2)
@@ -346,8 +346,8 @@ def calculate_principal_stress(stresstuple):
     s22 = stresstuple[1]  # Syy
     s33 = stresstuple[2]  # Szz
     s12 = stresstuple[3]  # Sxy
-    s23 = stresstuple[4]  # Syz
-    s31 = stresstuple[5]  # Szx
+    s31 = stresstuple[4]  # Sxz
+    s23 = stresstuple[5]  # Syz
     sigma = np.array([
         [s11, s12, s31],
         [s12, s22, s23],
