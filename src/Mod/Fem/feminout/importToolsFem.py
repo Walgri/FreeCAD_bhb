@@ -230,21 +230,21 @@ def fill_femresult_mechanical(res_obj, result_set):
             Syy = []
             Szz = []
             Sxy = []
+            Sxz = []
             Syz = []
-            Szx = []
-            for i, values_S in enumerate(stress.values()):  # values_S .. stresstuple .. (Sxx, Syy, Szz, Sxy, Syz, Szx)
+            for i, values_S in enumerate(stress.values()):  # values_S .. stresstuple .. (Sxx, Syy, Szz, Sxy, Sxz, Syz)
                 Sxx.append(values_S[0])
                 Syy.append(values_S[1])
                 Szz.append(values_S[2])
                 Sxy.append(values_S[3])
-                Syz.append(values_S[4])
-                Szx.append(values_S[5])
+                Sxz.append(values_S[4])
+                Syz.append(values_S[5])
             res_obj.NodeStressXX = Sxx
             res_obj.NodeStressYY = Syy
             res_obj.NodeStressZZ = Szz
             res_obj.NodeStressXY = Sxy
+            res_obj.NodeStressXZ = Sxz
             res_obj.NodeStressYZ = Syz
-            res_obj.NodeStressZX = Szx
 
         # fill res_obj.NodeStrainXX etc if they exist in result_set
         if 'strain' in result_set:
@@ -253,21 +253,21 @@ def fill_femresult_mechanical(res_obj, result_set):
             Eyy = []
             Ezz = []
             Exy = []
+            Exz = []
             Eyz = []
-            Ezx = []
-            for i, values_E in enumerate(strain.values()):  # values_E .. straintuple .. (Exx, Eyy, Ezz, Exy, Eyz, Ezx)
+            for i, values_E in enumerate(strain.values()):  # values_E .. straintuple .. (Exx, Eyy, Ezz, Exy, Exz, Eyz)
                 Exx.append(values_E[0])
                 Eyy.append(values_E[1])
                 Ezz.append(values_E[2])
                 Exy.append(values_E[3])
-                Eyz.append(values_E[4])
-                Ezx.append(values_E[5])
+                Exz.append(values_E[4])
+                Eyz.append(values_E[5])
             res_obj.NodeStrainXX = Exx
             res_obj.NodeStrainYY = Eyy
             res_obj.NodeStrainZZ = Ezz
             res_obj.NodeStrainXY = Exy
+            res_obj.NodeStrainXZ = Exz
             res_obj.NodeStrainYZ = Eyz
-            res_obj.NodeStrainZX = Ezx
 
         # fill Equivalent Plastic strain if they exist
         if 'peeq' in result_set:
