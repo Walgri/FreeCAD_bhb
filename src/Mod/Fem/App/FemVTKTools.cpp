@@ -676,22 +676,22 @@ std::map<std::string, std::string> _getFreeCADMechResultScalarProperties() {
     std::map<std::string, std::string> resFCScalProp;
     resFCScalProp["DisplacementLengths"] = "Displacement Magnitude";  // can be plotted in Paraview as THE DISPLACEMENT MAGNITUDE
     resFCScalProp["MaxShear"] = "Tresca Stress";
-    resFCScalProp["NodeStressXX"] = "Cauchy stress xx component";
-    resFCScalProp["NodeStressYY"] = "Cauchy stress yy component";
-    resFCScalProp["NodeStressZZ"] = "Cauchy stress zz component";
-    resFCScalProp["NodeStressXY"] = "Cauchy stress xy component";
-    resFCScalProp["NodeStressYZ"] = "Cauchy stress yz component";
-    resFCScalProp["NodeStressZX"] = "Cauchy stress zx component";
-    resFCScalProp["NodeStrainXX"] = "strain xx component";
-    resFCScalProp["NodeStrainYY"] = "strain yy component";
-    resFCScalProp["NodeStrainZZ"] = "strain zz component";
-    resFCScalProp["NodeStrainXY"] = "strain xy component";
-    resFCScalProp["NodeStrainYZ"] = "strain yz component";
-    resFCScalProp["NodeStrainZX"] = "strain zx component";
+    resFCScalProp["NodeStressXX"] = "Stress xx component";
+    resFCScalProp["NodeStressYY"] = "Stress yy component";
+    resFCScalProp["NodeStressZZ"] = "Stress zz component";
+    resFCScalProp["NodeStressXY"] = "Stress xy component";
+    resFCScalProp["NodeStressXZ"] = "Stress xz component";
+    resFCScalProp["NodeStressYZ"] = "Stress yz component";
+    resFCScalProp["NodeStrainXX"] = "Strain xx component";
+    resFCScalProp["NodeStrainYY"] = "Strain yy component";
+    resFCScalProp["NodeStrainZZ"] = "Strain zz component";
+    resFCScalProp["NodeStrainXY"] = "Strain xy component";
+    resFCScalProp["NodeStrainXZ"] = "Strain xz component";
+    resFCScalProp["NodeStrainYZ"] = "Strain yz component";
     resFCScalProp["Peeq"] = "Equivalent Plastic Strain";
-    resFCScalProp["PrincipalMax"] = "Major Principal Stress Magnitude",  // can be plotted in Paraview as THE MAJOR PRINCIPAL STRESS MAGNITUDE
-    resFCScalProp["PrincipalMed"] = "Intermediate Principal Stress Magnitude",  // can be plotted in Paraview as THE INTERMEDIATE PRINCIPAL STRESS MAGNITUDE
-    resFCScalProp["PrincipalMin"] = "Minor Principal Stress Magnitude",  // can be plotted in Paraview as THE MINOR PRINCIPAL STRESS MAGNITUDE
+    resFCScalProp["PrincipalMax"] = "Major Principal Stress",  // can be plotted in Paraview as THE MAJOR PRINCIPAL STRESS MAGNITUDE
+    resFCScalProp["PrincipalMed"] = "Intermediate Principal Stress",  // can be plotted in Paraview as THE INTERMEDIATE PRINCIPAL STRESS MAGNITUDE
+    resFCScalProp["PrincipalMin"] = "Minor Principal Stress",  // can be plotted in Paraview as THE MINOR PRINCIPAL STRESS MAGNITUDE
     resFCScalProp["StressValues"] = "von Mises Stress",
     resFCScalProp["Temperature"] = "Temperature";
 
