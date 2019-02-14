@@ -21,10 +21,13 @@
 # ***************************************************************************
 
 
-import FreeCAD
-from Material import get_material_template
+import yaml
 import os
 import sys
+import FreeCAD
+from Material import get_material_template
+
+
 if sys.version_info.major >= 3:
     unicode = str
 
@@ -102,6 +105,33 @@ def read(filename):
         if sys.version_info.major < 3:
             filename = filename.encode(sys.getfilesystemencoding())
     # print(filename)
+    f = pythonopen(filename)
+    first_line = f.readline()
+    if first_line.startswith(';') or first_line.startswith('['):
+        d = inireader(filename)
+    else:
+        d = yamlreader(filename)
+    return d
+
+
+def yamlreader(filename):
+    matdata = yaml.safe_load(pythonopen(filename))
+    matdict = {}
+    for section_dict in matdata:
+        # print(section_dict)
+        for k in section_dict:
+            # print(section_dict[k])
+            di = section_dict[k]
+            for k in di:
+                if k not in matdict:
+                    matdict[k] = di[k]
+                else:
+                    print('key in madict already, This should never happen ... ')
+    # print(matdict)
+    return matdict
+
+
+def inireader(filename):
     card_name_file = os.path.splitext(os.path.basename(filename))[0]
     if sys.version_info.major >= 3:
         f = pythonopen(filename, encoding="utf8")
@@ -135,6 +165,8 @@ def read(filename):
                         v = v.decode('utf-8')
                     d[k[0].strip()] = v
         ln += 1
+    # if d['Name'].startswith('['):
+    #     print(d['Name'])
     return d
 
 
@@ -208,4 +240,53 @@ def write(filename, dictionary, write_group_section=True):
                             f.write(k + " = " + i + "\n")
                         else:
                             f.write(k + " = " + i.encode('utf-8') + "\n")
+    f.close()
+
+    # yaml export
+    matdata = []
+    '''
+    matdata .. [
+        {'section_name_1' : {'prop1' : value, 'prop2' : value }},
+        {'section_name_2' : {'prop1' : value, 'prop2' : value }},
+        ... ,
+        {}
+    ]
+    '''
+    # get matdata out of matdict and new Templatematerial
+    matdict = dictionary.copy()
+    import yaml
+    template_data = yaml.load(pythonopen(FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/Templatematerial.yml'))
+    # print(template_data)
+    # print('\n\n')
+    for td_section in template_data:
+        section_dict = {}
+        for tdskey in td_section:
+            # print(td_section[tdskey])
+            section_dict[tdskey] = {}
+            for tdpropkey in td_section[tdskey]:
+                # print(tdpropkey)
+                if tdpropkey in matdict:
+                    section_dict[tdskey][tdpropkey] = matdict[tdpropkey]
+                    del matdict[tdpropkey]
+        # first key of section_dict
+        first_key = list(section_dict.keys())[0]
+        # only write if dictionayr section_dict[first_key] has keys, do not use is True because it returns True if empty
+        if len(section_dict) == 1 and section_dict[first_key]:
+            matdata.append(section_dict)
+    # print(matdata)
+    if matdict:  # for testing on empty dict do not use "is True" because this returns True if the dict is empty
+        print(matdict)
+        # TODO save uebrige keys in user defined, Steel-G200 hat fast 10!
+        # TODO Templatematerial anpassen
+
+    # TODO card name test
+
+    # write to yaml
+    ymlfilename = filename + ".yml"
+    f = pythonopen(ymlfilename, "w")
+    f.write("# file created by FreeCAD " + rev + "\n")
+    f.write('\n')
+    f.write('# matdata\n')
+    import yaml
+    f.write(yaml.dump(matdata, default_flow_style=False))
     f.close()
