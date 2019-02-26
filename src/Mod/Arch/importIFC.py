@@ -1319,21 +1319,24 @@ def insert(filename,docname,skip=[],only=[],root=None):
             name = material.Name
             if six.PY2:
                 name = name.encode("utf8")
-        if MERGE_MATERIALS and (name in fcmats.keys()):
-            mat = fcmats[name]
+        # get the material color
+        if material.id() in colors:
+            matcol = colors[material.id()]
+        else:
+            for o, m in mattable.items():
+                if m == material.id():
+                    if o in colors:
+                        matcol = colors[o]
+        if matcol:
+            nckey = 'name_' + (str(round(matcol[0], 4)) + '_' + str(round(matcol[1], 4)) + '_' + str(round(matcol[2], 4)))
+        else:
+            nckey = ''
+        if MERGE_MATERIALS and (nckey in fcmats.keys()):  # only merge materials if name and color equals
+            mat = fcmats[nckey]
         else:
             mat = Arch.makeMaterial(name=name)
-            mdict = {}
-            if material.id() in colors:
-                mdict["DiffuseColor"] = str(colors[material.id()])
-            else:
-                for o,m in mattable.items():
-                    if m == material.id():
-                        if o in colors:
-                            mdict["DiffuseColor"] = str(colors[o])
-            if mdict:
-                mat.Material = mdict
-            fcmats[name] = mat
+            mat.Material["DiffuseColor"] = str(matcol)
+            fcmats[nckey] = mat
         for o,m in mattable.items():
             if m == material.id():
                 if o in objects:
