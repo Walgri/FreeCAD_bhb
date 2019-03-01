@@ -31,7 +31,7 @@ if sys.version_info.major >= 3:
 
 import FreeCAD
 import FreeCADGui
-from Material import getMaterialAttributeStructure
+from Material import get_material_template
 
 
 __title__ = "FreeCAD material editor"
@@ -121,25 +121,22 @@ class MaterialEditor:
         treeView.setColumnWidth(1, 250)
         treeView.setColumnHidden(2, True)
 
-        tree = getMaterialAttributeStructure(True)
-        MatPropDict = tree.getroot()
+        template_data = get_material_template(True)
 
-        for group in MatPropDict.getchildren():
-            gg = group.attrib['Name']
+        for group in template_data:
+            gg = list(group.keys())[0]  # group dict has only one key
             top = QtGui.QStandardItem(gg)
             model.appendRow([top])
             self.groups.append(gg)
 
-            for proper in group.getchildren():
-                properDict = proper.attrib
-
-                pp = properDict['Name']
+            for properName in group[gg]:
+                pp = properName  # property name
                 item = QtGui.QStandardItem(pp)
                 self.internalprops.append(pp)
 
                 it = QtGui.QStandardItem()
 
-                tt = properDict['Type']
+                tt = group[gg][properName]['Type']
                 itType = QtGui.QStandardItem(tt)
 
                 top.appendRow([item, it, itType])

@@ -10,7 +10,7 @@ SET(Material_SRCS
     MaterialEditor.py
     materials-editor.ui
     materialutils.py
-    MatPropDict.xml
+    Templatematerial.yml
 )
 SOURCE_GROUP("Module" FILES ${Material_SRCS})
 
