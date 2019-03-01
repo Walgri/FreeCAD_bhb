@@ -20,6 +20,10 @@
 # *                                                                         *
 # ***************************************************************************
 
+
+import FreeCAD
+
+
 # here the usage description if you use this tool from the command line ("__main__")
 CommandlineUsage = """Material - Tool to work with FreeCAD Material definition cards
 
@@ -99,31 +103,24 @@ def exportFCMat(fileName, matDict):
         Config.write(configfile)
 
 
-def getMaterialAttributeStructure(withSpaces=None):
-
-    ''''''
-
+def get_material_template(withSpaces=False):
     # material properties
     # see the following resources in the FreeCAD wiki for more information about the material specific properties:
     # https://www.freecadweb.org/wiki/Material_data_model
     # https://www.freecadweb.org/wiki/Material
 
-    import os
-    import xml.etree.ElementTree as ElementTree
-
-    infile = os.path.dirname(__file__) + os.sep + "MatPropDict.xml"
-    tree = ElementTree.parse(infile)
-
+    import yaml
+    template_data = yaml.safe_load(open(FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/Templatematerial.yml'))
     if withSpaces:
         # on attributes, add a space before a capital letter, will be used for better display in the ui
         import re
-        root = tree.getroot()
-        for group in root.getchildren():
-            for proper in group.getchildren():
-                proper.set('Name', re.sub(r"(\w)([A-Z]+)", r"\1 \2",
-                           proper.attrib['Name']))
-
-    return tree
+        for group in template_data:
+            gg = list(group.keys())[0]  # group dict has only one key
+            for proper in list(group[gg].keys()):  # iterating over a dict and changing it is not allowed, thus we iterate over a list of the keys
+                new_proper = re.sub(r"(\w)([A-Z]+)", r"\1 \2", proper)
+                group[gg][new_proper] = group[gg][proper]
+                del group[gg][proper]
+    return template_data
 
 
 def read_cards_from_path(cards_path):
