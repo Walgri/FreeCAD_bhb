@@ -123,6 +123,60 @@ def get_material_template(withSpaces=False):
     return template_data
 
 
+def create_mat_tools_header():
+    template_data = get_material_template()
+    # tools will not be copied ... thus they are not there ...
+    # TODO copy them if they are reimplemented in Python
+    # headers = FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/StandardMaterial/Tools/headersnew'
+    headers = '/home/hugo/Documents/dev/freecad/freecadbhb_dev/freecad/src/Mod/Material/StandardMaterial/Tools/headers'
+    f = open(headers, "w")
+    for group in template_data:
+        gg = list(group.keys())[0]  # group dict has only one key
+        # do not write group UserDefined
+        if gg != 'UserDefined':
+            for prop_name in group[gg]:
+                if prop_name != 'None':
+                    f.write(prop_name + '\n')
+    f.close
+
+
+def create_mat_template_card(write_group_section=True):
+    rev = FreeCAD.ConfigGet("BuildVersionMajor") + "." + FreeCAD.ConfigGet("BuildVersionMinor") + "." + FreeCAD.ConfigGet("BuildRevision")
+    template_data = get_material_template()
+    template_card = '/home/hugo/Documents/dev/freecad/freecadbhb_dev/freecad/src/Mod/Material/StandardMaterial/TEMPLATE.FCMat'
+    f = open(template_card, "w")
+    f.write('; TEMPLATE\n')
+    f.write('; (c) 2013-2015 Juergen Riegel (CC-BY 3.0)\n')
+    f.write('; information about the content of such cards can be found on the wiki:\n')
+    f.write('; https://www.freecadweb.org/wiki/index.php?title=Material\n')
+    f.write(': this template card was created by FreeCAD ' + rev + '\n\n')
+    f.write('; localized Name, Description and KindOfMaterial uses 2 letter codes\n')
+    f.write('; defined in ISO-639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes\n')
+    f.write('; find unit information in src/App/FreeCADInit.py\n')
+    # write sections
+    # write standard FCMat section if write group section parameter is set to False
+    if write_group_section is False:
+        f.write("\n[FCMat]\n")
+    for group in template_data:
+        gg = list(group.keys())[0]  # group dict has only one key
+        # do not write groups Meta and UserDefined
+        if (gg != 'Meta') and (gg != 'UserDefined'):
+            # only write group section if write group section parameter is set to True
+            if write_group_section is True:
+                f.write("\n[" + gg + "]\n")
+            for prop_name in group[gg]:
+                description = group[gg][prop_name]['Description']
+                if not description.strip():
+                    f.write('; Description to be updated\n')
+                else:
+                    f.write('; ' + description + '\n')
+                url = group[gg][prop_name]['URL']
+                if url.strip():
+                    f.write('; ' + url + '\n')
+                f.write(prop_name + ' =\n\n')
+    f.close
+
+
 def read_cards_from_path(cards_path):
     from os import listdir
     from os.path import isfile, join, basename, splitext
