@@ -161,7 +161,7 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
             f.write('# *******************************************************************\n')
             f.write('# Description Record\n')
             f.write('#\n')
-        f.write('Patch test of PlaneStress2d elements -> pure compression\n')
+        f.write(FreeCAD.ActiveDocument.Name + '\n')
 
     def write_analysis_record(self, f):
         ''' *AnalysisType
