@@ -44,7 +44,7 @@ class Check(run.Check):
 
     def run(self):
         self.pushStatus("Checking analysis...\n")
-        # self.checkMesh()
+        self.checkMesh()
         # self.checkMaterial()
 
 
@@ -147,16 +147,24 @@ class _Container(object):
         self.analysis = analysis
 
         # ****************************************************************************************
-        # ATM no member are collected, to test the solver:
+        # commit by commit new members are added, to test the solver:
         # start FreeCAD, make a new document
-        # add an analysis, add a oofem solver and run the solver
-        # the dummy inputfile which is a string at end of writer module is written to
-        # the file 2DPlaneStress.in
+        # add an analysis, add a oofem solver
+        # add all objects which are collected in tasks module and implemented in writer module
+        # run the solver
+        # for all other sections in writer module still the dummy inputfile data will be used
         # results will be loaded
         # ****************************************************************************************
 
         # get mesh
-        self.mesh = None
+        mesh, message = femutils.get_mesh_to_solve(self.analysis)
+        if mesh is not None:
+            self.mesh = mesh
+        else:
+            if FreeCAD.GuiUp:
+                from PySide.QtGui import QMessageBox as qmessbox
+                qmessbox.critical(None, "Missing prerequisite", message)
+            raise Exception(message + '\n')
 
         # get member, empty lists are not supported by oofem
         self.materials_linear = []
