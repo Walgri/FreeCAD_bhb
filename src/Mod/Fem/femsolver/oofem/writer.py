@@ -88,8 +88,7 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
 
         # working dir and input file
         from os.path import join
-        # self.main_file_name = self.mesh_object.Name + '.in'
-        self.main_file_name = '2DPlaneStress.in'
+        self.main_file_name = self.mesh_object.Name + '.in'
         self.file_name = join(self.dir_name, self.main_file_name)
         FreeCAD.Console.PrintLog('FemInputWriterCcx --> self.dir_name  -->  ' + self.dir_name + '\n')
         FreeCAD.Console.PrintLog('FemInputWriterCcx --> self.main_file_name  -->  ' + self.main_file_name + '\n')
@@ -152,7 +151,7 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
             f.write('# *******************************************************************\n')
             f.write('# OOFEM Output File Name Record\n')
             f.write('#\n')
-        f.write('2DPlaneStress.out\n')
+        f.write(self.mesh_object.Name + '.out\n')
 
     def write_job_description_record(self, f):
         ''' Job description string '''
