@@ -182,7 +182,7 @@ class _Container(object):
 
         self.constraints_contact = []
         self.constraints_displacement = self.get_several_member('Fem::ConstraintDisplacement')
-        self.constraints_fixed = []
+        self.constraints_fixed = self.get_several_member('Fem::ConstraintFixed')
         self.constraints_force = self.get_several_member('Fem::ConstraintForce')
         self.constraints_heatflux = []
         self.constraints_initialtemperature = []
