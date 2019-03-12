@@ -172,7 +172,7 @@ class _Container(object):
             raise Exception(message + '\n')
 
         # get member, empty lists are not supported by oofem
-        self.materials_linear = []
+        self.materials_linear = self.get_several_member('Fem::Material')
         self.materials_nonlinear = []
 
         self.beam_sections = []
