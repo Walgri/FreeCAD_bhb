@@ -178,7 +178,7 @@ class _Container(object):
         self.beam_sections = []
         self.beam_rotations = []
         self.fluid_sections = []
-        self.shell_thicknesses = []
+        self.shell_thicknesses = self.get_several_member('Fem::FemElementGeometry2D')
 
         self.constraints_contact = []
         self.constraints_displacement = []
