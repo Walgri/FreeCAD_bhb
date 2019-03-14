@@ -26,7 +26,7 @@
 
 # Unit test for the FEM module
 # the order should be as follows:
-# common-, object-, mesh-, inout-, ccxtools-, solverframworktests
+# common-, object-, mesh-, inout-, ccxtools-, solverframwork-, oofemtests
 from femtest.testcommon import TestFemCommon
 from femtest.testobject import TestObjectCreate
 from femtest.testobject import TestObjectType
@@ -35,6 +35,7 @@ from femtest.testmesh import TestMeshEleTetra10
 from femtest.testresult import TestResult
 from femtest.testccxtools import TestCcxTools
 from femtest.testsolverframework import TestSolverFrameWork
+from femtest.testoofem import TestOofem
 
 
 # For more information on how to run a specific test class or a test method see
@@ -75,6 +76,7 @@ unittest.TextTestRunner().run(mytest)
 ./bin/FreeCAD --run-test "femtest.testcommon"
 ./bin/FreeCAD --run-test "femtest.testmesh"
 ./bin/FreeCAD --run-test "femtest.testobject"
+./bin/FreeCAD --run-test "femtest.testoofem"
 ./bin/FreeCAD --run-test "femtest.testresult"
 ./bin/FreeCAD --run-test "femtest.testsolverframework"
 
