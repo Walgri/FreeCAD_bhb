@@ -54,7 +54,10 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
         beamrotation_obj,
         shellthickness_obj,
         fluidsection_obj,
-        dir_name=None
+        dir_name=None,
+        write_comments=True
+        # write comments is a parameter value in this inherited class only
+        # thus we do not pass it to instantiate the FemInputWriter class
     ):
         FemInputWriter.FemInputWriter.__init__(
             self,
@@ -80,6 +83,9 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
             fluidsection_obj,
             dir_name
         )
+        # comments
+        self.write_comments = write_comments
+
         # working dir and input file
         from os.path import join
         # self.main_file_name = self.mesh_object.Name + '.in'
@@ -141,19 +147,21 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
 
     def write_output_file_record(self, f):
         ''' output filename String '''
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# OOFEM Output File Name Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# OOFEM Output File Name Record\n')
+            f.write('#\n')
         f.write('2DPlaneStress.out\n')
 
     def write_job_description_record(self, f):
         ''' Job description string '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Description Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Description Record\n')
+            f.write('#\n')
         f.write('Patch test of PlaneStress2d elements -> pure compression\n')
 
     def write_analysis_record(self, f):
@@ -189,11 +197,12 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
                  [nonlocalext]
                  [loadbalancing]
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Analysis and extra Output Modules Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Analysis and extra Output Modules Record\n')
+            f.write('#\n')
         f.write('LinearStatic  nsteps 1  nmodules 1\n')
         f.write('vtkxml tstep_all domain_all  primvars 1 1  vars 5 1 2 4 5 27  stype 2\n')
 
@@ -233,11 +242,12 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
             mass concentration=14
             special dofs for extended finite elements (XFEM)=15–30
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Domain Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Domain Record\n')
+            f.write('#\n')
         f.write('domain 2dPlaneStress\n')
 
     def write_output_manager_record(self, f):
@@ -260,11 +270,12 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
                 nltf # (in)
                 [nbarrier # (in) ]
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Output Manager Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Output Manager Record\n')
+            f.write('#\n')
         f.write('OutputManager tstep_all dofman_all element_all\n')
 
     def write_components_size_record(self, f):
@@ -279,11 +290,12 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
                 [nbarrier #(in)]
                 neset #[in]
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Components Size Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Components Size Record\n')
+            f.write('#\n')
         f.write('ndofman 8 nelem 5 ncrosssect 1 nmat 1 nbc 3 nic 0 nltf 1 nset 3\n')
 
     def write_dof_manager_record(self, f):
@@ -297,20 +309,22 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
              [shared]i | h[remote]i | h[null]
              [partitions # (ia) ]
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# DOF Manager Record\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# DOF Manager Record\n')
 
     def write_node_and_element_records(self, f):
         ''' Mesh writer, see OOFEM mesh file writer module '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Node and Element Records\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Node and Element Records\n')
+            f.write('#\n')
         from feminout.importOofemMesh import write_oofem_mesh_to_file as write_mesh
-        write_mesh(f, self.femmesh, self.femelement_table, None)
+        write_mesh(f, self.femmesh, self.femelement_table, None, self.write_comments)
 
     def write_cross_section_record(self, f):
         ''' *CrossSectType (num#) (in)
@@ -327,11 +341,12 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
                  Thicks # (ra) Widths # (ra)
                  midSurf # (rn)
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Cross Section Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Cross Section Record\n')
+            f.write('#\n')
         f.write('SimpleCS 1 thick 1.0 width 1.0 material 1 set 1\n')
 
     def write_material_type_record(self, f):
@@ -352,36 +367,40 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
                 *EC2CreepMat n (rn) # [ begOfTimeOfInterest (rn) #] [ end-OfTimeOfInterest (rn) #] relMatAge (rn) # [ timeFactor (rn) #] stiffnessFactor (rn) #
                     [ tAlpha (rn) #] fcm28 (rn) # t0 (rn) # cem- Type (in) # [ henv (rn) #] h0 (rn) # shType (in) # [ spectrum ][ temperatureDependent ]
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Material Type Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Material Type Record\n')
+            f.write('#\n')
         f.write('IsoLE 1 d 0. E 15.0 n 0.25 talpha 1.0\n')
 
     def write_boundary_condition_record(self, f):
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Boundary Condition Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Boundary Condition Record\n')
+            f.write('#\n')
         f.write('BoundaryCondition 1 loadTimeFunction 1 dofs 2 1 2 values 1 0.0 set 2\n')
         f.write('BoundaryCondition 2 loadTimeFunction 1 dofs 1 2 values 1 0.0 set 3\n')
 
     def write_nodal_load_record(self, f):
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Nodal Load Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Nodal Load Record\n')
+            f.write('#\n')
         f.write('NodalLoad 3 loadTimeFunction 1 dofs 2 1 2 components 2 2.5 0.0 set 3\n')
 
     def write_time_function_record(self, f):
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Time Function Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Time Function Record\n')
+            f.write('#\n')
         f.write('ConstantFunction 1 f(t) 1.0\n')
 
     def write_set_record(self, f):
@@ -390,21 +409,23 @@ class FemInputWriterOOFEM(FemInputWriter.FemInputWriter):
             [nodes # (ia) ] [noderanges # (rl) ] [allNodes]
             [elementboundaries # (ia) ] [elementedges # (ia) ]
         '''
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# Set Record\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# Set Record\n')
+            f.write('#\n')
         f.write('Set 1 elementranges {(1 5)}\n')
         f.write('Set 2 nodes 2 1 2\n')
         f.write('Set 3 nodes 2 7 8\n')
 
     def write_footer(self, f):
-        f.write('#\n')
-        f.write('#\n')
-        f.write('# *******************************************************************\n')
-        f.write('# End of Input File\n')
-        f.write('#\n')
+        if self.write_comments is True:
+            f.write('#\n')
+            f.write('#\n')
+            f.write('# *******************************************************************\n')
+            f.write('# End of Input File\n')
+            f.write('#\n')
 
 
 example_input_file = '''2DPlaneStress.out

@@ -54,6 +54,10 @@ class Prepare(run.Prepare):
         global _inputFileName
         self.pushStatus("Preparing input files...\n")
         c = _Container(self.analysis)
+        if self.testmode is True:
+            write_comments = True
+        else:
+            write_comments = settings.get_write_comments("oofem")
         w = writer.FemInputWriterOOFEM(
             self.analysis,
             self.solver,
@@ -75,7 +79,8 @@ class Prepare(run.Prepare):
             c.beam_rotations,
             c.shell_thicknesses,
             c.fluid_sections,
-            self.directory
+            self.directory,
+            write_comments  # this parameter only exists in oofems writer class
         )
         path = w.write_OOFEM_input_file()
         # report to user if task succeeded
