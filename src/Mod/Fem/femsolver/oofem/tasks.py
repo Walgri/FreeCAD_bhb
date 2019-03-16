@@ -181,7 +181,7 @@ class _Container(object):
         self.shell_thicknesses = self.get_several_member('Fem::FemElementGeometry2D')
 
         self.constraints_contact = []
-        self.constraints_displacement = []
+        self.constraints_displacement = self.get_several_member('Fem::ConstraintDisplacement')
         self.constraints_fixed = []
         self.constraints_force = []
         self.constraints_heatflux = []
