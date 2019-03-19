@@ -36,6 +36,7 @@ SET(FemExamples_SRCS
     femexamples/__init__.py
     femexamples/ccx_cantilever_std.py
     femexamples/manager.py
+    femexamples/oofem_planestress2d.py
 )
 
 SET(FemExampleMeshes_SRCS

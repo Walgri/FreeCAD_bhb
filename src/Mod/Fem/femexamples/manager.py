@@ -73,6 +73,10 @@ def run_all():
     run_ccx_cantilevernodeload()
     run_ccx_cantileverprescribeddisplacement()
 
+    run_ccx_cantilevernodeload(None, 'oofem')
+    run_ccx_cantileverprescribeddisplacement(None, 'oofem')
+    run_oofem_planestress2d(None, 'oofem')
+
 
 def run_ccx_cantileverfaceload(solver=None, base_name=None):
 
@@ -116,6 +120,20 @@ def run_ccx_cantileverprescribeddisplacement(solver=None, base_name=None):
     return doc
 
 
+def run_oofem_planestress2d(solver=None, base_name=None):
+
+    from femexamples.oofem_planestress2d import setup_planestress2d as setup
+    doc = setup()
+
+    if base_name is None:
+        base_name = 'PlaneStress2D'
+        if solver is not None:
+            base_name += ('_' + solver)
+    run_analysis(doc, base_name)
+
+    return doc
+
+
 '''
 from femexamples.manager import *
 
@@ -127,6 +145,9 @@ doc = run_ccx_cantileverprescribeddisplacement()
 
 doc = run_ccx_cantilevernodeload('calculix')
 doc = run_ccx_cantilevernodeload('ccxtools')
+doc = run_ccx_cantilevernodeload('oofem')
 doc = run_ccx_cantilevernodeload('z88')
 
+doc = run_ccx_cantileverprescribeddisplacement('oofem')
+doc = run_oofem_planestress2d()
 '''
