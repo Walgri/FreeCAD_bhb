@@ -437,20 +437,28 @@ def fill_femresult_mechanical(res_obj, result_set):
 
 
 # helper
-def calculate_principal_stress(i, scxx, scyy, sczz):
+def calculate_principal_stress(stresstuple, scxx, scyy, sczz):
     #
     #   HarryvL - calculate principal stress vectors and values
     #           - for concrete stresses use scxx, scyy, sczz on the diagonal
     #             of the stress tensor
-    #           - for total stresses use i[0], i[1], i[2] on the diagonal of
-    #             the stress tensor
+    #           - for total stresses use stresstuple[0], stresstuple[1], stresstuple[2]
+    #             on the diagonal of the stress tensor
     #           - TODO: option to use concrete or total stresses by user
     #
     #
 
-    sigma = np.array([[i[0], i[3], i[5]],
-                      [i[3], i[1], i[4]],
-                      [i[5], i[4], i[3]]])
+    s11 = stresstuple[0]  # Sxx
+    s22 = stresstuple[1]  # Syy
+    s33 = stresstuple[2]  # Szz
+    s12 = stresstuple[3]  # Sxy
+    s31 = stresstuple[4]  # Sxz
+    s23 = stresstuple[5]  # Syz
+    sigma = np.array([
+        [s11, s12, s31],
+        [s12, s22, s23],
+        [s31, s23, s33]
+    ])  # https://forum.freecadweb.org/viewtopic.php?f=18&t=24637&start=10#p240408
 
     eigenvalues, eigenvectors = np.linalg.eig(sigma)
 
@@ -499,8 +507,8 @@ def calculate_rho(i):
     syy = i[1]
     szz = i[2]
     sxy = i[3]
-    syz = i[4]
-    sxz = i[5]
+    syz = i[5]
+    sxz = i[4]
 
     rhox = np.zeros(15)
     rhoy = np.zeros(15)
