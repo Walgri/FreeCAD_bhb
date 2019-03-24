@@ -99,13 +99,22 @@ def importFrd(filename, analysis=None, result_name_prefix=None):
                     analysis_object.addObject(res_obj)
                 # complementary result object calculations
                 import femresult.resulttools as restools
+                import femtools.femutils as femutils
                 if not res_obj.MassFlowRate:
                     # only compact result if not Flow 1D results
                     # compact result object, workaround for bug 2873, https://www.freecadweb.org/tracker/view.php?id=2873
                     res_obj = restools.compact_result(res_obj)
                 res_obj = restools.add_disp_apps(res_obj)  # fill DisplacementLengths
                 res_obj = restools.add_von_mises(res_obj)  # fill StressValues
-                res_obj = restools.add_principal_stress(res_obj)  # fill PrincipalMax, PrincipalMed, PrincipalMin, MaxShear
+                if res_obj.getParentGroup():
+                    has_reinforced_mat = False
+                    for obj in res_obj.getParentGroup().Group:
+                        if obj.isDerivedFrom('App::MaterialObjectPython') and femutils.is_of_type(obj, 'Fem::MaterialReinforced'):
+                            has_reinforced_mat = True
+                            restools.add_principal_stress_reinforced(res_obj)
+                            break
+                    if has_reinforced_mat is False:
+                        res_obj = restools.add_principal_stress_std(res_obj)  # fill PrincipalMax, PrincipalMed, PrincipalMin, MaxShear
                 res_obj = restools.fill_femresult_stats(res_obj)  # fill Stats
         else:
             error_message = (
