@@ -413,6 +413,172 @@ def calculate_principal_stress_harry(stresstuple, scxx, scyy, sczz):
             tuple([tuple(row) for row in eigenvectors.T]))
 
 
+def calculate_rho(i):
+
+    #
+    #   HarryvL - Calculation of Reinforcement Ratios and
+    #   Concrete Stresses according to http://heronjournal.nl/53-4/3.pdf
+    #           - See post:
+    #             https://forum.freecadweb.org/viewtopic.php?f=18&t=28821
+    #           - TODO: the following material parameters are hard-coded
+    #             and should be entered in material dialog
+    #                   fy: factored yield strength of reinforcement bars
+    #                   r0: optional value for minimum reinforcement ratio
+    #                       (rx, y, rz are reduced accordingly) - default 0.0
+    #
+    fy = 315.
+    r0 = 0.0
+
+    rmin = 1.0e9
+    eqmin = 14
+
+    sxx = i[0]
+    syy = i[1]
+    szz = i[2]
+    sxy = i[3]
+    syz = i[5]
+    sxz = i[4]
+
+    rhox = np.zeros(15)
+    rhoy = np.zeros(15)
+    rhoz = np.zeros(15)
+
+    #    i1=sxx+syy+szz NOT USED
+    #    i2=sxx*syy+syy*szz+szz*sxx-sxy**2-sxz**2-syz**2 NOT USED
+    i3 = (sxx * syy * szz + 2 * sxy * sxz * syz - sxx * syz**2
+          - syy * sxz**2 - szz * sxy**2)
+
+    #    Solution (5)
+    d = (sxx * syy - sxy**2)
+    if d != 0.:
+        rhoz[0] = i3 / d / fy
+
+    #    Solution (6)
+    d = (sxx * szz - sxz**2)
+    if d != 0.:
+        rhoy[1] = i3 / d / fy
+
+    #    Solution (7)
+    d = (syy * szz - syz**2)
+    if d != 0.:
+        rhox[2] = i3 / d / fy
+
+    #    Solution (9)
+    if sxx != 0.:
+        fc = sxz * sxy / sxx - syz
+        fxy = sxy**2 / sxx
+        fxz = sxz**2 / sxx
+
+        #    Solution (9+)
+        rhoy[3] = syy - fxy + fc
+        rhoy[3] /= fy
+        rhoz[3] = szz - fxz + fc
+        rhoz[3] /= fy
+
+        #    Solution (9-)
+        rhoy[4] = syy - fxy - fc
+        rhoy[4] /= fy
+        rhoz[4] = szz - fxz - fc
+        rhoz[4] /= fy
+
+    #   Solution (10)
+    if syy != 0.:
+        fc = syz * sxy / syy - sxz
+        fxy = sxy**2 / syy
+        fyz = syz**2 / syy
+
+        # Solution (10+)
+        rhox[5] = sxx - fxy + fc
+        rhox[5] /= fy
+        rhoz[5] = szz - fyz + fc
+        rhoz[5] /= fy
+
+        # Solution (10-)vm
+        rhox[6] = sxx - fxy - fc
+
+        rhox[6] /= fy
+        rhoz[6] = szz - fyz - fc
+        rhoz[6] /= fy
+
+    # Solution (11)
+    if szz != 0.:
+        fc = sxz * syz / szz - sxy
+        fxz = sxz**2 / szz
+        fyz = syz**2 / szz
+
+        # Solution (11+)
+        rhox[7] = sxx - fxz + fc
+        rhox[7] /= fy
+        rhoy[7] = syy - fyz + fc
+        rhoy[7] /= fy
+
+        # Solution (11-)
+        rhox[8] = sxx - fxz - fc
+        rhox[8] /= fy
+        rhoy[8] = syy - fyz - fc
+        rhoy[8] /= fy
+
+    # Solution (13)
+    rhox[9] = (sxx + sxy + sxz) / fy
+    rhoy[9] = (syy + sxy + syz) / fy
+    rhoz[9] = (szz + sxz + syz) / fy
+
+    # Solution (14)
+    rhox[10] = (sxx + sxy - sxz) / fy
+    rhoy[10] = (syy + sxy - syz) / fy
+    rhoz[10] = (szz - sxz - syz) / fy
+
+    # Solution (15)
+    rhox[11] = (sxx - sxy - sxz) / fy
+    rhoy[11] = (syy - sxy + syz) / fy
+    rhoz[11] = (szz - sxz + syz) / fy
+
+    # Solution (16)
+    rhox[12] = (sxx - sxy + sxz) / fy
+    rhoy[12] = (syy - sxy - syz) / fy
+    rhoz[12] = (szz + sxz - syz) / fy
+
+    # Solution (17)
+    if syz != 0.:
+        rhox[13] = (sxx - sxy * sxz / syz) / fy
+    if sxz != 0.:
+        rhoy[13] = (syy - sxy * syz / sxz) / fy
+    if sxy != 0.:
+        rhoz[13] = (szz - sxz * syz / sxy) / fy
+
+    for ir in range(0, rhox.size):
+
+        if rhox[ir] >= -1.e-10 and rhoy[ir] >= -1.e-10 and rhoz[ir] > -1.e-10:
+
+            # Concrete Stresses
+            scxx = sxx - rhox[ir] * fy
+            scyy = syy - rhoy[ir] * fy
+            sczz = szz - rhoz[ir] * fy
+            ic1 = (scxx + scyy + sczz)
+            ic2 = (scxx * scyy + scyy * sczz + sczz * scxx - sxy**2
+                   - sxz**2 - syz**2)
+            ic3 = (scxx * scyy * sczz + 2 * sxy * sxz * syz - scxx * syz**2
+                   - scyy * sxz**2 - sczz * sxy**2)
+
+            if ic1 <= 1.e-6 and ic2 >= -1.e-6 and ic3 <= 1.0e-6:
+
+                rsum = rhox[ir] + rhoy[ir] + rhoz[ir]
+
+                if rsum < rmin and rsum > 0.:
+                    rmin = rsum
+                    eqmin = ir
+
+    rx = max(rhox[eqmin] - r0, 0.0)
+    ry = max(rhoy[eqmin] - r0, 0.0)
+    rz = max(rhoz[eqmin] - r0, 0.0)
+
+    scxx = sxx - rx * fy
+    scyy = syy - ry * fy
+    sczz = szz - rz * fy
+
+    return rhox[eqmin], rhoy[eqmin], rhoz[eqmin], scxx, scyy, sczz
+
+
 def calculate_disp_abs(displacements):
     # see https://forum.freecadweb.org/viewtopic.php?f=18&t=33106&start=100#p296657
     return [np.linalg.norm(nd) for nd in displacements]
