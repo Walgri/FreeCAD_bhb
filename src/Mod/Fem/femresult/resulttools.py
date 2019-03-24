@@ -579,6 +579,31 @@ def calculate_rho(i):
     return rhox[eqmin], rhoy[eqmin], rhoz[eqmin], scxx, scyy, sczz
 
 
+def calculate_mohr_coulomb(prin1, prin3):
+    #
+    #   HarryvL - Calculation of Mohr Coulomb yield criterion to judge
+    #             concrete curshing and shear failure
+    #           - TODO: the following material parameters are hard-coded
+    #             and should be entered in material dialog
+    #                   phi: angle of internal friction for
+    #                        concrete - default 30 degrees
+    #                   fck: factored concrete cube compressive
+    #                        stength - default 0.75*0.6*35.0 = 15.75 MPa
+    #
+
+    phi = np.pi / 6.
+    fck = 15.75
+    coh = fck * (1 - np.sin(phi)) / 2 / np.cos(phi)
+
+    mc_stress = ((prin1 - prin3) + (prin1 + prin3) * np.sin(phi)
+                 - 2. * coh * np.cos(phi))
+
+    if mc_stress < 0.:
+        mc_stress = 0.
+
+    return mc_stress
+
+
 def calculate_disp_abs(displacements):
     # see https://forum.freecadweb.org/viewtopic.php?f=18&t=33106&start=100#p296657
     return [np.linalg.norm(nd) for nd in displacements]
