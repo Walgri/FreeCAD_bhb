@@ -366,6 +366,53 @@ def calculate_principal_stress(stress_tensor):
     # TODO might be possible without a try except for NaN, https://forum.freecadweb.org/viewtopic.php?f=22&t=33911&start=10#p284229
 
 
+def calculate_principal_stress_harry(stresstuple, scxx, scyy, sczz):
+    #
+    #   HarryvL - calculate principal stress vectors and values
+    #           - for concrete stresses use scxx, scyy, sczz on the diagonal
+    #             of the stress tensor
+    #           - for total stresses use stresstuple[0], stresstuple[1], stresstuple[2]
+    #             on the diagonal of the stress tensor
+    #           - TODO: option to use concrete or total stresses by user
+    #
+    #
+
+    s11 = stresstuple[0]  # Sxx
+    s22 = stresstuple[1]  # Syy
+    s33 = stresstuple[2]  # Szz
+    s12 = stresstuple[3]  # Sxy
+    s31 = stresstuple[4]  # Sxz
+    s23 = stresstuple[5]  # Syz
+    sigma = np.array([
+        [s11, s12, s31],
+        [s12, s22, s23],
+        [s31, s23, s33]
+    ])  # https://forum.freecadweb.org/viewtopic.php?f=18&t=24637&start=10#p240408
+
+    eigenvalues, eigenvectors = np.linalg.eig(sigma)
+
+    #
+    #   HarryvL: suppress complex eigenvalue and vectors that may occur for
+    #   near-zero (numerical noise) stress fields
+    #
+
+    eigenvalues = eigenvalues.real
+    eigenvectors = eigenvectors.real
+
+    eigenvectors[:, 0] = eigenvalues[0] * eigenvectors[:, 0]
+    eigenvectors[:, 1] = eigenvalues[1] * eigenvectors[:, 1]
+    eigenvectors[:, 2] = eigenvalues[2] * eigenvectors[:, 2]
+
+    idx = eigenvalues.argsort()[::-1]
+    eigenvalues = eigenvalues[idx]
+    eigenvectors = eigenvectors[:, idx]
+
+    maxshear = (eigenvalues[0] - eigenvalues[2]) / 2.0
+
+    return (eigenvalues[0], eigenvalues[1], eigenvalues[2], maxshear,
+            tuple([tuple(row) for row in eigenvectors.T]))
+
+
 def calculate_disp_abs(displacements):
     # see https://forum.freecadweb.org/viewtopic.php?f=18&t=33106&start=100#p296657
     return [np.linalg.norm(nd) for nd in displacements]
