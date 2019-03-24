@@ -364,35 +364,34 @@ def add_principal_stress_harry(res_obj):
     rhz = []
     moc = []
 
-    for isv in range(nsr):
-
-        i = [
-            res_obj.NodeStressXX[isv],
-            res_obj.NodeStressYY[isv],
-            res_obj.NodeStressZZ[isv],
-            res_obj.NodeStressXY[isv],
-            res_obj.NodeStressXZ[isv],
-            res_obj.NodeStressYZ[isv]
-        ]
+    iterator = zip(
+        res_obj.NodeStressXX,
+        res_obj.NodeStressYY,
+        res_obj.NodeStressZZ,
+        res_obj.NodeStressXY,
+        res_obj.NodeStressXZ,
+        res_obj.NodeStressYZ
+    )
+    for isv, stresstuple in enumerate(iterator):
 
         rhox = 0.
         rhoy = 0.
         rhoz = 0.
         mc = 0.
-        scxx = i[0]
-        scyy = i[1]
-        sczz = i[2]
+        scxx = stresstuple[0]
+        scyy = stresstuple[1]
+        sczz = stresstuple[2]
 
         if ic[isv] == 1:
             #
             # HarryvL: for concrete scxx etc. are affected by
-            # reinforcement (see calculate_rho(i)). for all other
+            # reinforcement (see calculate_rho(stresstuple)). for all other
             # materials scxx etc. are the original stresses
             #
-            rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(i)
+            rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(stresstuple)
 
         prin1, prin2, prin3, shear, psv =\
-            calculate_principal_stress_harry(i, scxx, scyy, sczz)
+            calculate_principal_stress_harry(stresstuple, scxx, scyy, sczz)
 
         prinstress1.append(prin1)
         prinstress2.append(prin2)
