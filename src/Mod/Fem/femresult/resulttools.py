@@ -314,22 +314,7 @@ def add_principal_stress_harry(res_obj):
     print("nsr: {}".format(nsr))
 
     if nsr > 0:
-        prinstress1 = []
-        prinstress2 = []
-        prinstress3 = []
-        shearstress = []
-        ps1v = []
-        ps2v = []
-        ps3v = []
         ic = np.zeros(nsr)
-        #
-        # HarryvL: addtional arrays to hold reinforcement ratios
-        # and mohr coulomb stress
-        #
-        rhx = []
-        rhy = []
-        rhz = []
-        moc = []
         #
         # HarryvL: determine concrete / non-concrete nodes
         #
@@ -359,6 +344,22 @@ def add_principal_stress_harry(res_obj):
                             non_concrete_nodes = get_femnodes_by_refshape(result_mesh, ref)
                             for ncn in non_concrete_nodes:
                                 ic[ncn - 1] = 2
+
+        prinstress1 = []
+        prinstress2 = []
+        prinstress3 = []
+        shearstress = []
+        ps1v = []
+        ps2v = []
+        ps3v = []
+        #
+        # HarryvL: addtional arrays to hold reinforcement ratios
+        # and mohr coulomb stress
+        #
+        rhx = []
+        rhy = []
+        rhz = []
+        moc = []
 
         for isv in range(nsr):
 
