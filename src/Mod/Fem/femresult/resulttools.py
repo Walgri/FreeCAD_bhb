@@ -306,21 +306,17 @@ def add_principal_stress(res_obj):
     return res_obj
 
 
-def add_principal_stress_harry(res_obj):
-
-    nsr = len(res_obj.NodeStressXX)
-    print("nsr: {}".format(nsr))
-    if nsr == 0:
-        FreeCAD.Console.PrintMessage('No stress results, calculating and adding cancrete results values is not possible!\n')
-        return res_obj
+def get_concrete_nodes(mesh_obj):
 
     #
     # HarryvL: determine concrete / non-concrete nodes
     #
-    ic = np.zeros(nsr)
+
     from femmesh.meshtools import get_femnodes_by_refshape
-    result_mesh = res_obj.Mesh.FemMesh
-    for obj in res_obj.Document.Objects:
+    femmesh = mesh_obj.FemMesh
+    ic = np.zeros(femmesh.NodeCount)
+
+    for obj in mesh_obj.Document.Objects:
         if obj.isDerivedFrom('App::MaterialObjectPython'):
             if obj.Material.get('Name') == "Concrete":
                 print("CONCRETE")
@@ -330,7 +326,7 @@ def add_principal_stress_harry(res_obj):
                             ic[iic] = 1
                 else:
                     for ref in obj.References:
-                        concrete_nodes = get_femnodes_by_refshape(result_mesh, ref)
+                        concrete_nodes = get_femnodes_by_refshape(femmesh, ref)
                         for cn in concrete_nodes:
                             ic[cn - 1] = 1
             else:
@@ -341,9 +337,18 @@ def add_principal_stress_harry(res_obj):
                             ic[iic] = 2
                 else:
                     for ref in obj.References:
-                        non_concrete_nodes = get_femnodes_by_refshape(result_mesh, ref)
+                        non_concrete_nodes = get_femnodes_by_refshape(femmesh, ref)
                         for ncn in non_concrete_nodes:
                             ic[ncn - 1] = 2
+    return ic
+
+
+def add_principal_stress_harry(res_obj):
+
+    #
+    # HarryvL: determine concrete / non-concrete nodes
+    #
+    ic = get_concrete_nodes(res_obj.Mesh)
 
     #
     # calculate principal and max Shear and fill them in res_obj
