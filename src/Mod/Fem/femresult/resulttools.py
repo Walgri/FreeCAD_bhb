@@ -335,7 +335,7 @@ def add_principal_stress_harry(res_obj):
         #
         from femmesh.meshtools import get_femnodes_by_refshape
         result_mesh = res_obj.Mesh.FemMesh
-        for obj in FreeCAD.ActiveDocument.Objects:
+        for obj in res_obj.Document.Objects:
             if obj.isDerivedFrom('App::MaterialObjectPython'):
                 if obj.Material.get('Name') == "Concrete":
                     print("CONCRETE")
