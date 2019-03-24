@@ -314,7 +314,8 @@ def get_concrete_nodes(mesh_obj):
 
     from femmesh.meshtools import get_femnodes_by_refshape
     femmesh = mesh_obj.FemMesh
-    ic = np.zeros(femmesh.NodeCount)
+    nsr = femmesh.NodeCount
+    ic = np.zeros(nsr)
 
     for obj in mesh_obj.Document.Objects:
         if obj.isDerivedFrom('App::MaterialObjectPython'):
