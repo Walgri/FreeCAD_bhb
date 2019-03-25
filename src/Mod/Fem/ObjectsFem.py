@@ -259,6 +259,17 @@ def makeMaterialMechanicalNonlinear(doc, base_material, name="MechanicalMaterial
     return obj
 
 
+def makeMaterialReinforced(doc, name="MaterialReinforced"):
+    '''makeMaterialReinforced(document, [matrix_material], [reinforcement_material], [name]): creates a reinforced material object'''
+    obj = doc.addObject("App::MaterialObjectPython", name)
+    from femobjects import _FemMaterialReinforced
+    _FemMaterialReinforced._FemMaterialReinforced(obj)
+    if FreeCAD.GuiUp:
+        from femguiobjects import _ViewProviderFemMaterialReinforced
+        _ViewProviderFemMaterialReinforced._ViewProviderFemMaterialReinforced(obj.ViewObject)
+    return obj
+
+
 def makeMaterialSolid(doc, name="MechanicalSolidMaterial"):
     '''makeMaterialSolid(document, [name]): makes a FEM Material for solid'''
     obj = doc.addObject("App::MaterialObjectPython", name)
