@@ -314,7 +314,13 @@ def get_concrete_nodes(mesh_obj):
 
     from femmesh.meshtools import get_femnodes_by_refshape
     femmesh = mesh_obj.FemMesh
-    nsr = femmesh.NodeCount
+    nsr = femmesh.NodeCount  # nsr number of stress results
+
+    # ic[iic]:
+    # ic = flag for material type; iic = node number
+    # ic = 0: NOT ASSIGNED
+    # ic = 1: CONCRETE
+    # ic = 2: NOT CONCRETE
     ic = np.zeros(nsr)
 
     for obj in mesh_obj.Document.Objects:
