@@ -514,6 +514,7 @@ def calculate_principal_stress_harry(stresstuple, scxx, scyy, sczz):
     #           - TODO: option to use concrete or total stresses by user
     #
     #
+    # difference to the original method: https://forum.freecadweb.org/viewtopic.php?f=18&t=33106&start=90#p296539
 
     s11 = stresstuple[0]  # Sxx
     s22 = stresstuple[1]  # Syy
