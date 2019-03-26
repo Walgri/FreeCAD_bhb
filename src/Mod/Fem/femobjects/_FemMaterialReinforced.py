@@ -33,9 +33,7 @@ class _FemMaterialReinforced:
     "The FemMaterialReinforced object"
     def __init__(self, obj):
         obj.addProperty("App::PropertyLinkSubList", "References", "Material", "List of material shapes")
-        obj.addProperty("App::PropertyMap", "Matrix", "Composites", "Matrix material properties")
         obj.addProperty("App::PropertyMap", "Reinforcement", "Composites", "Reinforcement material properties")
-        # TODO: may be delete the Material dictionary property
         obj.Proxy = self
         self.Type = "Fem::FemMaterialReinforced"
 
