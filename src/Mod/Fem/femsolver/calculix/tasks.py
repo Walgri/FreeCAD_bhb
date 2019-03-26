@@ -177,7 +177,7 @@ class _Container(object):
             raise Exception(message + '\n')
 
         # get member
-        self.materials_linear = self.get_several_member('Fem::Material')
+        self.materials_linear = self.get_several_member('Fem::Material') + self.get_several_member('Fem::MaterialReinforced')
         self.materials_nonlinear = self.get_several_member('Fem::MaterialMechanicalNonlinear')
 
         self.beam_sections = self.get_several_member('Fem::FemElementGeometry1D')

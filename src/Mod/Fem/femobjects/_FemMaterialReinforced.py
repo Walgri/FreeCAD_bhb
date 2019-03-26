@@ -34,6 +34,9 @@ class _FemMaterialReinforced:
     def __init__(self, obj):
         obj.addProperty("App::PropertyLinkSubList", "References", "Material", "List of material shapes")
         obj.addProperty("App::PropertyMap", "Reinforcement", "Composites", "Reinforcement material properties")
+        obj.addProperty("App::PropertyEnumeration", "Category", "Material", "Material type: fluid or solid")
+        obj.Category = ['Solid']
+        obj.Category = 'Solid'
         obj.Proxy = self
         self.Type = "Fem::MaterialReinforced"
 
