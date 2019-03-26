@@ -384,26 +384,26 @@ def add_principal_stress_harry(res_obj):
         res_obj.NodeStressXZ,
         res_obj.NodeStressYZ
     )
-    for isv, stresstuple in enumerate(iterator):
+    for isv, stress_tensor in enumerate(iterator):
 
         rhox = 0.
         rhoy = 0.
         rhoz = 0.
         mc = 0.
-        scxx = stresstuple[0]
-        scyy = stresstuple[1]
-        sczz = stresstuple[2]
+        scxx = stress_tensor[0]
+        scyy = stress_tensor[1]
+        sczz = stress_tensor[2]
 
         if ic[isv] == 1:
             #
             # HarryvL: for concrete scxx etc. are affected by
-            # reinforcement (see calculate_rho(stresstuple)). for all other
+            # reinforcement (see calculate_rho(stress_tensor)). for all other
             # materials scxx etc. are the original stresses
             #
-            rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(stresstuple)
+            rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(stress_tensor)
 
         prin1, prin2, prin3, shear, psv =\
-            calculate_principal_stress_harry(stresstuple, scxx, scyy, sczz)
+            calculate_principal_stress_harry(stress_tensor, scxx, scyy, sczz)
 
         prinstress1.append(prin1)
         prinstress2.append(prin2)
@@ -504,24 +504,24 @@ def calculate_principal_stress(stress_tensor):
     # TODO might be possible without a try except for NaN, https://forum.freecadweb.org/viewtopic.php?f=22&t=33911&start=10#p284229
 
 
-def calculate_principal_stress_harry(stresstuple, scxx, scyy, sczz):
+def calculate_principal_stress_harry(stress_tensor, scxx, scyy, sczz):
     #
     #   HarryvL - calculate principal stress vectors and values
     #           - for concrete stresses use scxx, scyy, sczz on the diagonal
     #             of the stress tensor
-    #           - for total stresses use stresstuple[0], stresstuple[1], stresstuple[2]
+    #           - for total stresses use stress_tensor[0], stress_tensor[1], stress_tensor[2]
     #             on the diagonal of the stress tensor
     #           - TODO: option to use concrete or total stresses by user
     #
     #
     # difference to the original method: https://forum.freecadweb.org/viewtopic.php?f=18&t=33106&start=90#p296539
 
-    s11 = stresstuple[0]  # Sxx
-    s22 = stresstuple[1]  # Syy
-    s33 = stresstuple[2]  # Szz
-    s12 = stresstuple[3]  # Sxy
-    s31 = stresstuple[4]  # Sxz
-    s23 = stresstuple[5]  # Syz
+    s11 = stress_tensor[0]  # Sxx
+    s22 = stress_tensor[1]  # Syy
+    s33 = stress_tensor[2]  # Szz
+    s12 = stress_tensor[3]  # Sxy
+    s31 = stress_tensor[4]  # Sxz
+    s23 = stress_tensor[5]  # Syz
     sigma = np.array([
         [s11, s12, s31],
         [s12, s22, s23],
