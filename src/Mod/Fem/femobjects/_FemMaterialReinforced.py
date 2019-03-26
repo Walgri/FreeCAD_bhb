@@ -35,7 +35,7 @@ class _FemMaterialReinforced:
         obj.addProperty("App::PropertyLinkSubList", "References", "Material", "List of material shapes")
         obj.addProperty("App::PropertyMap", "Reinforcement", "Composites", "Reinforcement material properties")
         obj.Proxy = self
-        self.Type = "Fem::FemMaterialReinforced"
+        self.Type = "Fem::MaterialReinforced"
 
     def execute(self, obj):
         return
