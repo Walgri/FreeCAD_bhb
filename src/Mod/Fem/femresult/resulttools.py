@@ -306,14 +306,14 @@ def add_principal_stress(res_obj):
     return res_obj
 
 
-def get_concrete_nodes(mesh_obj):
+def get_concrete_nodes(res_obj):
 
     #
     # HarryvL: determine concrete / non-concrete nodes
     #
 
     from femmesh.meshtools import get_femnodes_by_refshape
-    femmesh = mesh_obj.FemMesh
+    femmesh = res_obj.Mesh.FemMesh
     nsr = femmesh.NodeCount  # nsr number of stress results
 
     # ic[iic]:
@@ -323,7 +323,7 @@ def get_concrete_nodes(mesh_obj):
     # ic = 2: NOT CONCRETE
     ic = np.zeros(nsr)
 
-    for obj in mesh_obj.Document.Objects:
+    for obj in res_obj.getParentGroup().Group:
         if obj.isDerivedFrom('App::MaterialObjectPython'):
             if obj.Material.get('Name') == "Concrete":
                 print("CONCRETE")
@@ -355,7 +355,7 @@ def add_principal_stress_harry(res_obj):
     #
     # HarryvL: determine concrete / non-concrete nodes
     #
-    ic = get_concrete_nodes(res_obj.Mesh)
+    ic = get_concrete_nodes(res_obj)
 
     #
     # calculate principal and max Shear and fill them in res_obj
