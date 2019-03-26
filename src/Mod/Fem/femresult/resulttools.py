@@ -376,6 +376,12 @@ def add_principal_stress_harry(res_obj):
     rhz = []
     moc = []
 
+    # material parameter
+    matrix_af = np.pi / 6.0  # angle of internal friction (phi) for a concrete, 30 degrees
+    matrix_cs = 15.75  # compressive strength (fck) factored cube compressive stregth for a concrete = 0.75*0.6*35.0 = 15.75 MPa
+    reinforce_yield = 315.0  # yield strength (fy) factored yield stregth of reinforcement bars = 315 MPa
+    reinforce_ratio = 0.0  # minimum reinforcement ratio (r0) optional value (rx, ry, rz are reduced accordingly)
+
     iterator = zip(
         res_obj.NodeStressXX,
         res_obj.NodeStressYY,
@@ -400,7 +406,7 @@ def add_principal_stress_harry(res_obj):
             # reinforcement (see calculate_rho(stress_tensor)). for all other
             # materials scxx etc. are the original stresses
             #
-            rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(stress_tensor)
+            rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(stress_tensor, reinforce_yield, reinforce_ratio)
 
         prin1, prin2, prin3, shear, psv =\
             calculate_principal_stress_harry(stress_tensor, scxx, scyy, sczz)
@@ -420,7 +426,7 @@ def add_principal_stress_harry(res_obj):
         rhy.append(rhoy)
         rhz.append(rhoz)
         if ic[isv] == 1:
-            mc = calculate_mohr_coulomb(prin1, prin3)
+            mc = calculate_mohr_coulomb(prin1, prin3, matrix_af, matrix_cs)
         moc.append(mc)
 
     res_obj.PrincipalMax = prinstress1
@@ -552,22 +558,17 @@ def calculate_principal_stress_harry(stress_tensor, scxx, scyy, sczz):
             tuple([tuple(row) for row in eigenvectors.T]))
 
 
-def calculate_rho(i):
+def calculate_rho(i, fy, r0):
 
     #
     #   HarryvL - Calculation of Reinforcement Ratios and
     #   Concrete Stresses according to http://heronjournal.nl/53-4/3.pdf
     #           - See post:
     #             https://forum.freecadweb.org/viewtopic.php?f=18&t=28821
-    #           - TODO: the following material parameters are hard-coded
-    #             and should be entered in material dialog
     #                   fy: factored yield strength of reinforcement bars
     #                   r0: optional value for minimum reinforcement ratio
-    #                       (rx, y, rz are reduced accordingly) - default 0.0
+    #                       (rx, y, rz are reduced accordingly)
     #
-    fy = 315.
-    r0 = 0.0
-
     rmin = 1.0e9
     eqmin = 14
 
@@ -718,21 +719,15 @@ def calculate_rho(i):
     return rhox[eqmin], rhoy[eqmin], rhoz[eqmin], scxx, scyy, sczz
 
 
-def calculate_mohr_coulomb(prin1, prin3):
+def calculate_mohr_coulomb(prin1, prin3, phi, cs):
     #
     #   HarryvL - Calculation of Mohr Coulomb yield criterion to judge
     #             concrete curshing and shear failure
-    #           - TODO: the following material parameters are hard-coded
-    #             and should be entered in material dialog
-    #                   phi: angle of internal friction for
-    #                        concrete - default 30 degrees
-    #                   fck: factored concrete cube compressive
-    #                        stength - default 0.75*0.6*35.0 = 15.75 MPa
+    #           - material parameter
+    #                   phi: angle of internal friction
+    #                   cs: factored compressive strength
     #
-
-    phi = np.pi / 6.
-    fck = 15.75
-    coh = fck * (1 - np.sin(phi)) / 2 / np.cos(phi)
+    coh = cs * (1 - np.sin(phi)) / 2 / np.cos(phi)
 
     mc_stress = ((prin1 - prin3) + (prin1 + prin3) * np.sin(phi)
                  - 2. * coh * np.cos(phi))
