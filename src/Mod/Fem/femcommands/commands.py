@@ -444,6 +444,24 @@ class _CommandFemMaterialMechanicalNonlinear(CommandManager):
         FreeCAD.ActiveDocument.recompute()
 
 
+class _CommandFemMaterialReinforced(CommandManager):
+    "The FEM_MaterialReinforced command definition"
+    def __init__(self):
+        super(_CommandFemMaterialReinforced, self).__init__()
+        self.resources = {'Pixmap': 'fem-material-reinforced',
+                          'MenuText': QtCore.QT_TRANSLATE_NOOP("FEM_MaterialReinforced", "Reinforced material (concrete)"),
+                          'Accel': "M, M",
+                          'ToolTip': QtCore.QT_TRANSLATE_NOOP("FEM_MaterialReinforced", "Creates a material for reinforced matrix material such as concrete")}
+        self.is_active = 'with_analysis'
+
+    def Activated(self):
+        FreeCAD.ActiveDocument.openTransaction("Create Reinforced Material")
+        FreeCADGui.addModule("ObjectsFem")
+        FreeCADGui.doCommand("FemGui.getActiveAnalysis().addObject(ObjectsFem.makeMaterialReinforced(FreeCAD.ActiveDocument, 'ReinforcedMaterial'))")
+        FreeCADGui.doCommand("FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)")
+        FreeCAD.ActiveDocument.recompute()
+
+
 class _CommandFemMaterialSolid(CommandManager):
     "The FEM_MaterialSolid command definition"
     def __init__(self):
@@ -805,6 +823,7 @@ FreeCADGui.addCommand('FEM_EquationHeat', _CommandFemEquationHeat())
 FreeCADGui.addCommand('FEM_MaterialEditor', _CommandFemMaterialEditor())
 FreeCADGui.addCommand('FEM_MaterialFluid', _CommandFemMaterialFluid())
 FreeCADGui.addCommand('FEM_MaterialMechanicalNonlinear', _CommandFemMaterialMechanicalNonlinear())
+FreeCADGui.addCommand('FEM_MaterialReinforced', _CommandFemMaterialReinforced())
 FreeCADGui.addCommand('FEM_MaterialSolid', _CommandFemMaterialSolid())
 FreeCADGui.addCommand('FEM_FEMMesh2Mesh', _CommandFemMesh2Mesh())
 FreeCADGui.addCommand('FEM_MeshBoundaryLayer', _CommandFemMeshBoundaryLayer())
