@@ -378,7 +378,7 @@ def add_principal_stress_harry(res_obj):
     # material parameter
     for obj in res_obj.getParentGroup().Group:
         if femutils.is_of_type(obj, 'Fem::MaterialReinforced'):
-            matrix_af = float(obj.Material['AngleOfFriction'])
+            matrix_af = float(FreeCAD.Units.Quantity(obj.Material['AngleOfFriction']).getValueAs('rad'))
             matrix_cs = float(FreeCAD.Units.Quantity(obj.Material['CompressiveStrength']).getValueAs('MPa'))
             reinforce_yield = float(FreeCAD.Units.Quantity(obj.Reinforcement['YieldStrength']).getValueAs('MPa'))
             reinforce_ratio = float(obj.Reinforcement['ReinforcementRatio'])
@@ -386,7 +386,7 @@ def add_principal_stress_harry(res_obj):
     print(matrix_cs)
     print(reinforce_yield)
     print(reinforce_ratio)
-    # matrix_af = np.pi / 6.0  # angle of ReinforcementRatio friction (phi) for a concrete, 30 degrees
+    # matrix_af = np.pi / 6.0  # angle of ReinforcementRatio friction (phi) for a concrete, 30 degrees = 0.523 rad
     # matrix_cs = 15.75  # compressive strength (fck) factored cube compressive stregth for a concrete = 0.75*0.6*35.0 = 15.75 MPa
     # reinforce_yield = 315.0  # yield strength (fy) factored yield stregth of reinforcement bars = 315 MPa
     # reinforce_ratio = 0.0  # minimum reinforcement ratio (r0) optional value (rx, ry, rz are reduced accordingly)
