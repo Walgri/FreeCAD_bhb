@@ -319,34 +319,33 @@ def get_concrete_nodes(res_obj):
     # ic[iic]:
     # ic = flag for material type; iic = node number
     # ic = 0: NOT ASSIGNED
-    # ic = 1: CONCRETE
-    # ic = 2: NOT CONCRETE
+    # ic = 1: ReinforcedMaterial
+    # ic = 2: NOT ReinforcedMaterial
     ic = np.zeros(nsr)
 
     for obj in res_obj.getParentGroup().Group:
-        if obj.isDerivedFrom('App::MaterialObjectPython'):
-            if obj.Material.get('Name') == "Concrete":
-                print("CONCRETE")
-                if obj.References == []:
-                    for iic in range(nsr):
-                        if ic[iic] == 0:
-                            ic[iic] = 1
-                else:
-                    for ref in obj.References:
-                        concrete_nodes = get_femnodes_by_refshape(femmesh, ref)
-                        for cn in concrete_nodes:
-                            ic[cn - 1] = 1
+        if obj.isDerivedFrom('App::MaterialObjectPython') and femutils.is_of_type(obj, 'Fem::MaterialReinforced'):
+            print("ReinforcedMaterial")
+            if obj.References == []:
+                for iic in range(nsr):
+                    if ic[iic] == 0:
+                        ic[iic] = 1
             else:
-                print("NOT CONCRETE")
-                if obj.References == []:
-                    for iic in range(nsr):
-                        if ic[iic] == 0:
-                            ic[iic] = 2
-                else:
-                    for ref in obj.References:
-                        non_concrete_nodes = get_femnodes_by_refshape(femmesh, ref)
-                        for ncn in non_concrete_nodes:
-                            ic[ncn - 1] = 2
+                for ref in obj.References:
+                    concrete_nodes = get_femnodes_by_refshape(femmesh, ref)
+                    for cn in concrete_nodes:
+                        ic[cn - 1] = 1
+        elif obj.isDerivedFrom('App::MaterialObjectPython') and femutils.is_of_type(obj, 'Fem::Material'):
+            print("NOT ReinforcedMaterial")
+            if obj.References == []:
+                for iic in range(nsr):
+                    if ic[iic] == 0:
+                        ic[iic] = 2
+            else:
+                for ref in obj.References:
+                    non_concrete_nodes = get_femnodes_by_refshape(femmesh, ref)
+                    for ncn in non_concrete_nodes:
+                        ic[ncn - 1] = 2
     return ic
 
 
