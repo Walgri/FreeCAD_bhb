@@ -28,7 +28,6 @@ __url__ = "http://www.freecadweb.org"
 #  \ingroup FEM
 #  \brief FreeCAD FEM import tools
 
-
 import FreeCAD
 
 
