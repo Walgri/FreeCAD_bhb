@@ -279,7 +279,7 @@ def add_von_mises(res_obj):
     return res_obj
 
 
-def add_principal_stress(res_obj):
+def add_principal_stress_std(res_obj):
     prinstress1 = []
     prinstress2 = []
     prinstress3 = []
@@ -349,7 +349,7 @@ def get_concrete_nodes(res_obj):
     return ic
 
 
-def add_principal_stress_harry(res_obj):
+def add_principal_stress_reinforced(res_obj):
 
     #
     # HarryvL: determine concrete / non-concrete nodes
