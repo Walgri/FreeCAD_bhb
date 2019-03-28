@@ -249,13 +249,21 @@ class TestResult(unittest.TestCase):
         # fcc_print(round(mises, 4))
         self.assertEqual(round(mises, 4), expected_mises, "Calculated von Mises stress is not the expected value.")
 
-    def test_stress_principal(self):
+    def test_stress_principal_std(self):
         expected_principal = (-178.0076, -194.0749, -468.9075, 145.4499)
-        from femresult.resulttools import calculate_principal_stress as pr
-        prin = pr(self.get_stress_values())
+        from femresult.resulttools import calculate_principal_stress_std as prstd
+        prin = prstd(self.get_stress_values())
         rounded_prin = (round(prin[0], 4), round(prin[1], 4), round(prin[2], 4), round(prin[3], 4))
         # fcc_print(rounded_prin)
-        self.assertEqual(rounded_prin, expected_principal, "Calculated principal stresses are not the expected values.")
+        self.assertEqual(rounded_prin, expected_principal, "Calculated principal standard stresses are not the expected values.")
+
+    def test_stress_principal_reinforced(self):
+        expected_principal = (-178.0076, -194.0749, -468.9075, 145.4499)
+        from femresult.resulttools import calculate_principal_stress_std as prrc
+        prin = prrc(self.get_stress_values())
+        rounded_prin = (round(prin[0], 4), round(prin[1], 4), round(prin[2], 4), round(prin[3], 4))
+        # fcc_print(rounded_prin)
+        self.assertEqual(rounded_prin, expected_principal, "Calculated principal reinforced stresses are not the expected values.")
 
     def test_disp_abs(self):
         expected_dispabs = 87.302986
