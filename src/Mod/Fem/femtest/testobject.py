@@ -76,6 +76,7 @@ class TestObjectCreate(unittest.TestCase):
         analysis.addObject(ObjectsFem.makeMaterialFluid(doc))
         mat = analysis.addObject(ObjectsFem.makeMaterialSolid(doc))[0]
         analysis.addObject(ObjectsFem.makeMaterialMechanicalNonlinear(doc, mat))
+        analysis.addObject(ObjectsFem.makeMaterialReinforced(doc))
 
         msh = analysis.addObject(ObjectsFem.makeMeshGmsh(doc))[0]
         analysis.addObject(ObjectsFem.makeMeshBoundaryLayer(doc, msh))
@@ -166,6 +167,7 @@ class TestObjectType(unittest.TestCase):
         self.assertEqual('Fem::Material', type_of_obj(ObjectsFem.makeMaterialFluid(doc)))
         self.assertEqual('Fem::Material', type_of_obj(materialsolid))
         self.assertEqual('Fem::MaterialMechanicalNonlinear', type_of_obj(ObjectsFem.makeMaterialMechanicalNonlinear(doc, materialsolid)))
+        self.assertEqual('Fem::MaterialReinforced', type_of_obj(ObjectsFem.makeMaterialReinforced(doc)))
         mesh = ObjectsFem.makeMeshGmsh(doc)
         self.assertEqual('Fem::FemMeshGmsh', type_of_obj(mesh))
         self.assertEqual('Fem::FemMeshBoundaryLayer', type_of_obj(ObjectsFem.makeMeshBoundaryLayer(doc, mesh)))
@@ -184,7 +186,7 @@ class TestObjectType(unittest.TestCase):
         self.assertEqual('Fem::FemEquationElmerFlow', type_of_obj(ObjectsFem.makeEquationFlow(doc, solverelmer)))
         self.assertEqual('Fem::FemEquationElmerFluxsolver', type_of_obj(ObjectsFem.makeEquationFluxsolver(doc, solverelmer)))
         self.assertEqual('Fem::FemEquationElmerHeat', type_of_obj(ObjectsFem.makeEquationHeat(doc, solverelmer)))
-        # is = 43 (just copy in empty file to test)
+        # is = 44 tests (just copy in empty file to test)
         # TODO: vtk post objs
         # TODO: use different type for fluid and solid material
 
@@ -220,6 +222,7 @@ class TestObjectType(unittest.TestCase):
         self.assertTrue(is_of_type(ObjectsFem.makeMaterialFluid(doc), 'Fem::Material'))
         self.assertTrue(is_of_type(materialsolid, 'Fem::Material'))
         self.assertTrue(is_of_type(ObjectsFem.makeMaterialMechanicalNonlinear(doc, materialsolid), 'Fem::MaterialMechanicalNonlinear'))
+        self.assertTrue(is_of_type(ObjectsFem.makeMaterialReinforced(doc), 'Fem::MaterialReinforced'))
         mesh = ObjectsFem.makeMeshGmsh(doc)
         self.assertTrue(is_of_type(mesh, 'Fem::FemMeshGmsh'))
         self.assertTrue(is_of_type(ObjectsFem.makeMeshBoundaryLayer(doc, mesh), 'Fem::FemMeshBoundaryLayer'))
@@ -238,7 +241,7 @@ class TestObjectType(unittest.TestCase):
         self.assertTrue(is_of_type(ObjectsFem.makeEquationFlow(doc, solverelmer), 'Fem::FemEquationElmerFlow'))
         self.assertTrue(is_of_type(ObjectsFem.makeEquationFluxsolver(doc, solverelmer), 'Fem::FemEquationElmerFluxsolver'))
         self.assertTrue(is_of_type(ObjectsFem.makeEquationHeat(doc, solverelmer), 'Fem::FemEquationElmerHeat'))
-        # is = 43 (just copy in empty file to test)
+        # is = 44 tests (just copy in empty file to test)
 
     def test_femobjects_derivedfromfem(self):
         # try to add all possible True types from inheritance chain see https://forum.freecadweb.org/viewtopic.php?f=10&t=32625
@@ -356,6 +359,10 @@ class TestObjectType(unittest.TestCase):
         self.assertTrue(is_derived_from(ObjectsFem.makeMaterialMechanicalNonlinear(doc, materialsolid), 'Fem::FeaturePython'))
         self.assertTrue(is_derived_from(ObjectsFem.makeMaterialMechanicalNonlinear(doc, materialsolid), 'Fem::MaterialMechanicalNonlinear'))
 
+        self.assertTrue(is_derived_from(ObjectsFem.makeMaterialReinforced(doc), 'App::DocumentObject'))
+        self.assertTrue(is_derived_from(ObjectsFem.makeMaterialReinforced(doc), 'App::MaterialObjectPython'))
+        self.assertTrue(is_derived_from(ObjectsFem.makeMaterialReinforced(doc), 'Fem::MaterialReinforced'))
+
         self.assertTrue(is_derived_from(mesh, 'App::DocumentObject'))
         self.assertTrue(is_derived_from(mesh, 'Fem::FemMeshObjectPython'))
         self.assertTrue(is_derived_from(mesh, 'Fem::FemMeshGmsh'))
@@ -455,6 +462,7 @@ class TestObjectType(unittest.TestCase):
         self.assertTrue(ObjectsFem.makeMaterialFluid(doc).isDerivedFrom('App::MaterialObjectPython'))
         self.assertTrue(materialsolid.isDerivedFrom('App::MaterialObjectPython'))
         self.assertTrue(ObjectsFem.makeMaterialMechanicalNonlinear(doc, materialsolid).isDerivedFrom('Fem::FeaturePython'))
+        self.assertTrue(ObjectsFem.makeMaterialReinforced(doc).isDerivedFrom('App::MaterialObjectPython'))
         mesh = ObjectsFem.makeMeshGmsh(doc)
         self.assertTrue(mesh.isDerivedFrom('Fem::FemMeshObjectPython'))
         self.assertTrue(ObjectsFem.makeMeshBoundaryLayer(doc, mesh).isDerivedFrom('Fem::FeaturePython'))
@@ -473,7 +481,7 @@ class TestObjectType(unittest.TestCase):
         self.assertTrue(ObjectsFem.makeEquationFlow(doc, solverelmer).isDerivedFrom('App::FeaturePython'))
         self.assertTrue(ObjectsFem.makeEquationFluxsolver(doc, solverelmer).isDerivedFrom('App::FeaturePython'))
         self.assertTrue(ObjectsFem.makeEquationHeat(doc, solverelmer).isDerivedFrom('App::FeaturePython'))
-        # is = 43 (just copy in empty file to test)
+        # is = 44 tests (just copy in empty file to test)
 
     def tearDown(self):
         # clearance, is executed after every test
