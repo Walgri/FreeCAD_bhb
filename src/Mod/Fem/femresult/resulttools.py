@@ -293,7 +293,7 @@ def add_principal_stress_std(res_obj):
         res_obj.NodeStressYZ
     )
     for Sxx, Syy, Szz, Sxy, Sxz, Syz in iterator:
-        prin1, prin2, prin3, shear = calculate_principal_stress((Sxx, Syy, Szz, Sxy, Sxz, Syz))
+        prin1, prin2, prin3, shear = calculate_principal_stress_std((Sxx, Syy, Szz, Sxy, Sxz, Syz))
         prinstress1.append(prin1)
         prinstress2.append(prin2)
         prinstress3.append(prin3)
@@ -418,7 +418,7 @@ def add_principal_stress_reinforced(res_obj):
             rhox, rhoy, rhoz, scxx, scyy, sczz = calculate_rho(stress_tensor, reinforce_yield, reinforce_ratio)
 
         prin1, prin2, prin3, shear, psv =\
-            calculate_principal_stress_harry(stress_tensor, scxx, scyy, sczz)
+            calculate_principal_stress_reinforced(stress_tensor, scxx, scyy, sczz)
 
         prinstress1.append(prin1)
         prinstress2.append(prin2)
@@ -494,7 +494,7 @@ def calculate_von_mises(stress_tensor):
     return np.sqrt(1.5 * np.linalg.norm(normal - pressure)**2 + 3.0 * np.linalg.norm(shear)**2)
 
 
-def calculate_principal_stress(stress_tensor):
+def calculate_principal_stress_std(stress_tensor):
     s11 = stress_tensor[0]  # Sxx
     s22 = stress_tensor[1]  # Syy
     s33 = stress_tensor[2]  # Szz
@@ -519,7 +519,7 @@ def calculate_principal_stress(stress_tensor):
     # TODO might be possible without a try except for NaN, https://forum.freecadweb.org/viewtopic.php?f=22&t=33911&start=10#p284229
 
 
-def calculate_principal_stress_harry(stress_tensor, scxx, scyy, sczz):
+def calculate_principal_stress_reinforced(stress_tensor, scxx, scyy, sczz):
     #
     #   HarryvL - calculate principal stress vectors and values
     #           - for concrete stresses use scxx, scyy, sczz on the diagonal
