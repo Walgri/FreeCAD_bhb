@@ -734,7 +734,7 @@ def calculate_mohr_coulomb(prin1, prin3, phi, fck):
     #   HarryvL - Calculation of Mohr Coulomb yield criterion to judge
     #             concrete curshing and shear failure
     #                   phi: angle of internal friction
-    #                   fck: factored compressive stength of the matrix material (usually concrete)
+    #                   fck: factored compressive strength of the matrix material (usually concrete)
     #
 
     coh = fck * (1 - np.sin(phi)) / 2 / np.cos(phi)
