@@ -73,9 +73,10 @@ packages_hard_dependencies="    \
     python3-pyside2.qtgui       \
     python3-pyside2.qtsvg       \
     python3-pyside2.qtwidgets   \
-    python3-six
+    python3-six                 \
     qtbase5-dev                 \
     qttools5-dev                \
+    qtwebengine5-dev            \
     swig                        \
     "
 sudo apt-get install -y $packages_hard_dependencies
