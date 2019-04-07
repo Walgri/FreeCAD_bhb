@@ -1,0 +1,20 @@
+; Concrete-Harry
+; (c) 2019 Bernd Hahnebach (CC-BY 3.0)
+; information about the content of such cards can be found on the wiki:
+; https://www.freecadweb.org/wiki/Material
+
+
+[General]
+Name = Concrete-Harry
+Description = Concrete matrix for reinforcement material examples
+Father = Aggregate
+
+[Mechanical]
+AngleOfFriction = 30 deg
+CompressiveStrength = 15.75 MPa
+Density = 2500 kg/m^3
+PoissonRatio = 0.17
+YoungsModulus = 32000 MPa
+
+[Cost]
+ProductURL = https://en.wikipedia.org/wiki/Concrete
