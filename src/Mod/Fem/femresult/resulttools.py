@@ -381,7 +381,10 @@ def add_principal_stress_reinforced(res_obj):
             matrix_af = float(FreeCAD.Units.Quantity(obj.Material['AngleOfFriction']).getValueAs('rad'))
             matrix_cs = float(FreeCAD.Units.Quantity(obj.Material['CompressiveStrength']).getValueAs('MPa'))
             reinforce_yield = float(FreeCAD.Units.Quantity(obj.Reinforcement['YieldStrength']).getValueAs('MPa'))
-            reinforce_ratio = float(obj.Reinforcement['ReinforcementRatio'])
+            if 'ReinforcementRatio' in obj.Reinforcement:
+                reinforce_ratio = float(obj.Reinforcement['ReinforcementRatio'])
+            else:
+                reinforce_ratio = 0.0
     # print(matrix_af)
     # print(matrix_cs)
     # print(reinforce_yield)
