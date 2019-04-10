@@ -203,3 +203,51 @@ def create_mat_template_card(write_group_section=True):
                     f.write('; ' + url + '\n')
                 f.write(prop_name + ' =\n\n')
     f.close
+
+
+def get_material_template(withSpaces=False):
+    # material properties
+    # see the following resources in the FreeCAD wiki for more information about the material specific properties:
+    # https://www.freecadweb.org/wiki/Material_data_model
+    # https://www.freecadweb.org/wiki/Material
+
+    import yaml
+    template_data = yaml.safe_load(open(FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/Templatematerial.yml'))
+    if withSpaces:
+        # on attributes, add a space before a capital letter, will be used for better display in the ui
+        import re
+        for group in template_data:
+            gg = list(group.keys())[0]  # group dict has only one key
+            for proper in list(group[gg].keys()):  # iterating over a dict and changing it is not allowed, thus we iterate over a list of the keys
+                new_proper = re.sub(r"(\w)([A-Z]+)", r"\1 \2", proper)
+                group[gg][new_proper] = group[gg][proper]
+                del group[gg][proper]
+    return template_data
+
+
+def read_cards_from_path(cards_path):
+    from os import listdir
+    from os.path import isfile, join, basename, splitext
+    from importFCMat import read
+    only_files = [f for f in listdir(cards_path) if isfile(join(cards_path, f))]
+    mat_files = [f for f in only_files if basename(splitext(f)[1]) == '.FCMat' or basename(splitext(f)[1]) == '.fcmat']
+    # print(mat_files)
+    mat_cards = []
+    for f in sorted(mat_files):
+        mat_cards.append(read(join(cards_path, f)))
+    return mat_cards
+
+
+def write_cards_to_path(cards_path, cards_data, write_group_section=True, write_template=False):
+    from importFCMat import write
+    from os.path import join
+    for card_data in cards_data:
+        if (card_data['CardName'] == 'TEMPLATE') and (write_template is False):
+            continue
+        else:
+            card_path = join(cards_path, (card_data['CardName'] + '.FCMat'))
+            print(card_path)
+            if write_group_section is True:
+                write(card_path, card_data, True)
+            else:
+                write(card_path, card_data, False)

@@ -31,7 +31,7 @@ if sys.version_info.major >= 3:
 
 import FreeCAD
 import FreeCADGui
-from Material import get_material_template
+from materialutils import get_material_template
 
 
 __title__ = "FreeCAD material editor"

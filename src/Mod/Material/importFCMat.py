@@ -22,7 +22,7 @@
 
 
 import FreeCAD
-from Material import get_material_template
+from materialutils import get_material_template
 import os
 import sys
 if sys.version_info.major >= 3:
