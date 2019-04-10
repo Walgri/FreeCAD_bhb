@@ -22,15 +22,16 @@
 
 
 from __future__ import print_function
+import os
+import sys
+from PySide import QtCore, QtGui
+# from PySide import QtUiTools, QtSvg
+if sys.version_info.major >= 3:
+    unicode = str
+
 import FreeCAD
 import FreeCADGui
 from Material import getMaterialAttributeStructure
-import os
-from PySide import QtCore, QtGui
-# from PySide import QtUiTools, QtSvg
-import sys
-if sys.version_info.major >= 3:
-    unicode = str
 
 
 __title__ = "FreeCAD material editor"
@@ -78,7 +79,8 @@ class MaterialEditor:
         standardButtons.button(QtGui.QDialogButtonBox.Ok).setAutoDefault(False)
         standardButtons.button(QtGui.QDialogButtonBox.Cancel).setAutoDefault(False)
         self.updateCards()
-        # TODO allow to enter a custom property by pressing Enter in the lineedit (currently closes the dialog)
+        # TODO allow to enter a custom property by pressing Enter in the lineedit
+        # currently closes the dialog
 
         standardButtons.rejected.connect(self.reject)
         standardButtons.accepted.connect(self.accept)
@@ -149,9 +151,12 @@ class MaterialEditor:
     def updateContents(self, data):
 
         '''updates the contents of the editor with the given data, can be:
-           - the name of a card, if material is changed in editors combo box
-           - a dictionary, if the editor was called with data.'''
+           - a dictionary, if the editor was called  with data
+           - a string, the name of a card, if material is changed in editors combo box
+           the material property keys where added to the editor already
+           not known material property keys will be added to the user defined group'''
 
+        # print type(data)
         if isinstance(data, dict):
             # a standard material property dict is provided
             model = self.widget.treeView.model()
@@ -182,7 +187,8 @@ class MaterialEditor:
                 self.customprops.append(k)
 
         elif isinstance(data, unicode):
-            # a card name is provided, search card, read material data and call this def once more with std material property dict
+            # a card name is provided, search card, read material data and call
+            # this def once more with std material property dict
             k = str(data)
             if k:
                 if k in self.cards:
@@ -225,7 +231,9 @@ class MaterialEditor:
         print('\n')
 
     def updateCards(self):
-        "updates the contents of the materials combo with existing material cards"
+
+        '''updates the contents of the materials combo with existing material cards'''
+
         self.getMaterialResources()
         self.cards = {}
         for p in self.resources:
@@ -239,10 +247,11 @@ class MaterialEditor:
             self.widget.ComboMaterial.clear()
             self.widget.ComboMaterial.addItem("")  # add a blank item first
             for card in sorted(self.cards.keys()):
-                self.widget.ComboMaterial.addItem(card)
+                self.widget.ComboMaterial.addItem(card)  # all keys in self.cards are unicode
 
     def openProductURL(self):
-        "opens the contents of the ProductURL field in an external browser."
+
+        '''opens the contents of the ProductURL field in an external browser.'''
 
         model = self.widget.treeView.model()
         item = model.findItems(translate("Material", "Product URL"),
@@ -383,7 +392,8 @@ class MaterialEditor:
                 kk = group.child(row, 0).text()
                 ii = group.child(row, 1).text()
 
-                # TODO the following should be translated back to english,since text(0) could be translated
+                # TODO the following should be translated back to english
+                # since text(0) could be translated
                 matkey = self.collapseKey(str(kk))
                 matvalue = unicode(ii)
                 if matvalue or (matkey == 'Name'):
@@ -413,8 +423,14 @@ class MaterialEditor:
 
     def openfile(self):
         "Opens a FCMat file"
-        filetuple = QtGui.QFileDialog.getOpenFileName(QtGui.QApplication.activeWindow(), 'Open FreeCAD Material file', self.directory, '*.FCMat')
-        filename = filetuple[0]  # a tuple of two empty strings returns True, so use the filename directly
+        filetuple = QtGui.QFileDialog.getOpenFileName(
+            QtGui.QApplication.activeWindow(),
+            'Open FreeCAD Material file',
+            self.directory,
+            '*.FCMat'
+        )
+        # a tuple of two empty strings returns True, so use the filename directly
+        filename = filetuple[0]
         if filename:
             import importFCMat
             self.directory = os.path.dirname(filename)
@@ -436,11 +452,14 @@ class MaterialEditor:
                 name = name.encode("utf8")
         if not name:
             name = "Material"
-        filetuple =\
-            QtGui.QFileDialog.getSaveFileName(QtGui.QApplication.activeWindow(),
-                                              'Save FreeCAD Material file',
-                                              self.directory + '/' + name + '.FCMat', '*.FCMat')
-        filename = filetuple[0]  # a tuple of two empty strings returns True, so use the filename directly
+        filetuple = QtGui.QFileDialog.getSaveFileName(
+            QtGui.QApplication.activeWindow(),
+            'Save FreeCAD Material file',
+            self.directory + '/' + name + '.FCMat',
+            '*.FCMat'
+        )
+        # a tuple of two empty strings returns True, so use the filename directly
+        filename = filetuple[0]
         if filename:
             self.directory = os.path.dirname(filename)
             d = self.getDict()
@@ -644,9 +663,11 @@ def editMaterial(material):
     """editMaterial(material): opens the editor to edit the contents
     of the given material dictionary. Returns the modified material dictionary."""
     # if the material editor is opened with this def the combo box with the card name is empty
-    # this makes sense, because the editor was not opened with a card but with material dictionary instead
+    # this makes sense ...
+    # because the editor was not opened with a card but with material dictionary instead
     # TODO: add some text in combo box, may be "custom material data" or "user material data"
-    # TODO: all card could be checked if one fits exact ALL provided data and than this card name could be displayed
+    # TODO: all card could be checked if one fits exact ALL provided data
+    # than this card name could be displayed
     editor = MaterialEditor(material=material)
     result = editor.exec_()
     if result:
@@ -660,12 +681,19 @@ def editMaterial(material):
 import MaterialEditor
 MaterialEditor.openEditor()
 
-doc = FreeCAD.open(FreeCAD.ConfigGet("AppHomePath") + 'data/examples/FemCalculixCantilever3D.FCStd')
+doc = FreeCAD.open(
+    FreeCAD.ConfigGet("AppHomePath") + 'data/examples/FemCalculixCantilever3D.FCStd'
+)
 import MaterialEditor
 MaterialEditor.openEditor('SolidMaterial', 'Material')
 
 import MaterialEditor
-MaterialEditor.editMaterial({'Density': '1234.0 kg/m^3', 'Name': 'My-Material-Data', 'PoissonRatio': '0.66', 'YoungsModulus': '123456 MPa'})
+MaterialEditor.editMaterial({
+    'Density': '1234.0 kg/m^3',
+    'Name': 'My-Material-Data',
+    'PoissonRatio': '0.66',
+    'YoungsModulus': '123456 MPa'
+})
 
 import MaterialEditor
 MaterialEditor.editMaterial('ABS')
