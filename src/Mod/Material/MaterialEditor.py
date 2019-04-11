@@ -20,23 +20,20 @@
 # *                                                                         *
 # ***************************************************************************
 
+__title__ = "FreeCAD material editor"
+__author__ = "Yorik van Havre"
+__url__ = "http://www.freecadweb.org"
 
-from __future__ import print_function
 import os
 import sys
 from PySide import QtCore, QtGui
 # from PySide import QtUiTools, QtSvg
-if sys.version_info.major >= 3:
-    unicode = str
 
 import FreeCAD
 import FreeCADGui
-from materialutils import get_material_template
 
-
-__title__ = "FreeCAD material editor"
-__author__ = "Yorik van Havre"
-__url__ = "http://www.freecadweb.org"
+if sys.version_info.major >= 3:
+    unicode = str
 
 
 class MaterialEditor:
@@ -121,6 +118,7 @@ class MaterialEditor:
         treeView.setColumnWidth(1, 250)
         treeView.setColumnHidden(2, True)
 
+        from materialutils import get_material_template
         template_data = get_material_template(True)
 
         for group in template_data:
@@ -363,9 +361,10 @@ class MaterialEditor:
     def outputDict(self, d):
         print('MaterialEditor dictionary')
         for param in d:
-            print('  ' + param + ' : ' + d[param])
+            print('  {} : {}'.format(param, d[param]))
 
-    '''def setTexture(self, pattern):
+    '''
+    def setTexture(self, pattern):
         "displays a texture preview if needed"
         self.widget.PreviewVector.hide()
         if pattern:
@@ -377,7 +376,8 @@ class MaterialEditor:
                 pattern = DrawingPatterns.buildFileSwatch(pattern, size=96, png=True)
                 if pattern:
                     self.widget.PreviewVector.setPixmap(QtGui.QPixmap(pattern))
-                    self.widget.PreviewVector.show()'''
+                    self.widget.PreviewVector.show()
+    '''
 
     def openfile(self):
         "Opens a FCMat file"
@@ -544,7 +544,7 @@ def matProperWidget(parent=None, matproperty=None, Type="String", Value=None,
             quantity = FreeCAD.Units.Quantity(1, unit)
             widget.setProperty('unit', quantity.getUserPreferred()[2])
         else:
-            FreeCAD.Console.PrintError('Not known unit for property: ' + matproperty + '\n')
+            FreeCAD.Console.PrintError('Not known unit for property: {}\n'.format(matproperty))
 
     elif Type == "Integer":
 
