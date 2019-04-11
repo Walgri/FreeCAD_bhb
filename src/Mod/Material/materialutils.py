@@ -67,9 +67,16 @@ def output_cards(cards):
     print('\n')
 
 
-def get_material_cards(resources):
-    # no duplicates, an existing card will be overwritten!
+def get_material_cards(resources=None):
+
+    # get resources if not given
+    if not resources:
+        resources = get_material_resources()
+    # output_resources(resources)
+
     cards = {}
+    # no duplicates in card names, an existing card will be overwritten!
+    # means the last found is taken, if two cards with the same name exists
     for p in resources:
         for f in os.listdir(p):
             b, e = os.path.splitext(f)
@@ -79,12 +86,12 @@ def get_material_cards(resources):
                     b = b.decode('utf-8')  # qt needs unicode to display the special characters the right way
                 cards[b] = p + os.sep + f
     # outputCards()
-    getAndOutputAllCardData()
-    # print(cards)
+    # get_and_output_all_carddata(cards)  # to compare with cards, has some problems ...
     return cards
 
 
 def get_and_output_all_carddata(cards):
+    # TODO: move to the yaml template and test
     from Material import getMaterialAttributeStructure
     print('\n\n\nMYSTART')
     # get all registered material property keys
@@ -129,26 +136,6 @@ def get_and_output_all_carddata(cards):
     print(registeredAndNotUsedCardKeys)
     # still there may be lots of properties in the template which are not used in other materials but the tmplate is handeled here like a material
     print('MYEND\n\n\n')
-
-
-def get_material_cards():
-    # get resources
-    resources = get_material_resources()
-    output_resources(resources)
-
-    # read card files and fill cards
-    cards = {}
-    # no duplicates in card names, an existing card will be overwritten!
-    # means the last found is taken, if two cards with the same name exists
-    for p in resources:
-        if os.path.exists(p):
-            for f in sorted(os.listdir(p)):
-                b, e = os.path.splitext(f)
-                if e.upper() == ".FCMAT":
-                    cards[b] = p + os.sep + f
-    output_cards(cards)
-    # get_and_output_all_carddata(cards)  # has some problems ...
-    return cards
 
 
 def create_mat_tools_header():
