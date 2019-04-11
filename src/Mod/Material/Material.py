@@ -53,8 +53,9 @@ Version:
 """
 
 
-# see comments in module importFCMat, there is an independent parser implementation for reading and writing FCMat files
-# inside FreeCAD a mixture of these parsers and the ones in importFCMat.py is used
+# see comments in module importFCMat, there is an independent parser implementation
+# for reading and writing FCMat files
+# inside FreeCAD mostly the one from importFCMat.py is used
 
 
 def importFCMat(fileName):
@@ -64,6 +65,10 @@ def importFCMat(fileName):
     except ImportError:
         import configparser
 
+    FreeCAD.Console.PrintError(
+        'This mat card reader is probably depretiated and not widely used in FreeCAD. '
+        'See comment in Material.py module.\n'
+    )
     Config = configparser.RawConfigParser()
     Config.optionxform = str
     Config.read(fileName)
@@ -85,6 +90,10 @@ def exportFCMat(fileName, matDict):
     import string
     Config = configparser.RawConfigParser()
 
+    FreeCAD.Console.PrintError(
+        'This mat card writer is probably depretiated and not widely used in FreeCAD. '
+        'See comment in Material.py module.\n'
+    )
     # create groups
     for x in matDict.keys():
         grp, key = string.split(x, sep='_')
