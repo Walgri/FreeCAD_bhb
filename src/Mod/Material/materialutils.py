@@ -25,11 +25,24 @@ __author__ = "Bernd Hahnebach"
 __url__ = "http://www.freecadweb.org"
 
 import os
+import sys
+from os.path import join
+
 import FreeCAD
+
+if sys.version_info.major >= 3:
+    unicode = str
+
+
+# card tools will not be copied inot build ... thus they are not there ...
+# TODO copy them, than setting users src path is no longer needed
+# headers = FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/StandardMaterial/Tools/headers'
+FREECAD_SRC_PATH = '/home/hugo/Documents/dev/freecad/freecadbhb_dev/freecad/src'
 
 
 # TODO: may be move the module into a package materialtools/utils, do not forget the __init__.py
 # cmake is much easier without a package, thus leave it for now in main module directory
+# TODO: rename to cardutils or cardtools if inside materialtools
 
 
 def get_material_resources():
@@ -43,7 +56,9 @@ def get_material_resources():
     # FreeCAD returns paths with / at the end, thus not os.sep is needed on first +
     resources = []
     if use_built_in_materials:
-        resources.append(FreeCAD.getResourceDir() + "Mod" + os.sep + "Material" + os.sep + "StandardMaterial")
+        resources.append(
+            join(FreeCAD.getResourceDir(), "Mod", "Material", "StandardMaterial")
+        )
     if use_mat_from_config_dir:
         resources.append(FreeCAD.ConfigGet("UserAppData") + "Material")
     if use_mat_from_custom_dir:
@@ -78,72 +93,90 @@ def get_material_cards(resources=None):
     # no duplicates in card names, an existing card will be overwritten!
     # means the last found is taken, if two cards with the same name exists
     for p in resources:
-        for f in os.listdir(p):
-            b, e = os.path.splitext(f)
-            if e.upper() == ".FCMAT":
-                # print(type(b))
-                if isinstance(b, str):  # checks for string, returns false for a unicode string
-                    b = b.decode('utf-8')  # qt needs unicode to display the special characters the right way
-                cards[b] = p + os.sep + f
+        if os.path.exists(p):
+            for f in sorted(os.listdir(p)):  # sort cards, TODO: use pref
+                b, e = os.path.splitext(f)
+                if e.upper() == ".FCMAT":
+                    # TODO: get special characters working in any case
+                    '''
+                    # print(type(b))
+                    # checks for a string, returns false for a unicode string
+                    if isinstance(b, str):
+                        # qt needs unicode to display the special characters the right way
+                        b = b.decode('utf-8')
+                    '''
+                    cards[b] = p + os.sep + f
     # outputCards()
     # get_and_output_all_carddata(cards)  # to compare with cards, has some problems ...
     return cards
 
 
 def get_and_output_all_carddata(cards):
-    # TODO: move to the yaml template and test
-    from Material import getMaterialAttributeStructure
-    print('\n\n\nMYSTART')
+    print('\n\n\nMYSTART\n----------')
     # get all registered material property keys
-    registedCardKeys = []
-    for gr in getMaterialAttributeStructure().getroot():
-        for key in gr[1]:
-            registedCardKeys.append(key)
-    registedCardKeys = sorted(registedCardKeys)
+    registed_cardkeys = []
+    template_data = get_material_template()
+    # print(template_data)
+    for group in template_data:
+        gg = list(group.keys())[0]  # group dict has only one key
+        for key in group[gg]:
+            registed_cardkeys.append(key)
+    registed_cardkeys = sorted(registed_cardkeys)
+    # print(registed_cardkeys)
 
     # get all data from all known cards
-    allCardsAndData = {}  # {cardfilename: ['path', materialdict]}
+    all_cards_and_data = {}  # {cardfilename: ['path', materialdict]}
     for card in cards:
         from importFCMat import read
         d = read(cards[card])
-        allCardsAndData[card] = [cards[card], d]
+        all_cards_and_data[card] = [cards[card], d]
     '''
-    for card in allCardsAndData:
+    for card in all_cards_and_data:
         print(card)
-        print(allCardsAndData[card][0])
-        print(allCardsAndData[card][1])
+        print(all_cards_and_data[card][0])
+        print(all_cards_and_data[card][1])
         print('\n')
     '''
 
     # find not registered and registered keys in the used data
-    usedAndRegisteredCardKeys = []
-    usedAndNotRegisteredCardKeys = []
-    registeredAndNotUsedCardKeys = []
-    for card in allCardsAndData:
-        for k in allCardsAndData[card][1]:
-            if k in registedCardKeys:
-                usedAndRegisteredCardKeys.append(k)
+    used_and_registered_cardkeys = []
+    used_and_not_registered_cardkeys = []
+    registered_and_not_used_cardkeys = []
+    for card in all_cards_and_data:
+        for k in all_cards_and_data[card][1]:
+            if k in registed_cardkeys:
+                used_and_registered_cardkeys.append(k)
             else:
-                usedAndNotRegisteredCardKeys.append(k)
-    for k in registedCardKeys:
-        if (k not in usedAndRegisteredCardKeys) and (k not in usedAndNotRegisteredCardKeys):
-            registeredAndNotUsedCardKeys.append(k)
-    usedAndRegisteredCardKeys = sorted(list(set(usedAndRegisteredCardKeys)))
-    usedAndNotRegisteredCardKeys = sorted(list(set(usedAndNotRegisteredCardKeys)))
-    registeredAndNotUsedCardKeys = sorted(list(set(registeredAndNotUsedCardKeys)))
-    print(usedAndRegisteredCardKeys)
-    print(usedAndNotRegisteredCardKeys)
-    print(registeredAndNotUsedCardKeys)
-    # still there may be lots of properties in the template which are not used in other materials but the tmplate is handeled here like a material
-    print('MYEND\n\n\n')
+                used_and_not_registered_cardkeys.append(k)
+    for k in registed_cardkeys:
+        if (k not in used_and_registered_cardkeys) and (k not in used_and_not_registered_cardkeys):
+            registered_and_not_used_cardkeys.append(k)
+
+    used_and_registered_cardkeys = sorted(list(set(used_and_registered_cardkeys)))
+    used_and_not_registered_cardkeys = sorted(list(set(used_and_not_registered_cardkeys)))
+    registered_and_not_used_cardkeys = sorted(list(set(registered_and_not_used_cardkeys)))
+    FreeCAD.Console.PrintMessage(
+        '\nused_and_registered_cardkeys:\n{}\n'
+        .format(used_and_registered_cardkeys)
+    )
+    FreeCAD.Console.PrintMessage(
+        '\nused_and_not_registered_cardkeys:\n{}\n'
+        .format(used_and_not_registered_cardkeys)
+    )
+    FreeCAD.Console.PrintMessage(
+        '\nregistered_and_not_used_cardkeys:\n{}\n'
+        .format(registered_and_not_used_cardkeys)
+    )
+
+    # still there might be lots of properties in the template
+    # which are not used in other materials
+    # but the tmplate is handeled here like a material
+    print('----------\nMYEND\n\n\n')
 
 
 def create_mat_tools_header():
     template_data = get_material_template()
-    # tools will not be copied ... thus they are not there ...
-    # TODO copy them if they are reimplemented in Python
-    # headers = FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/StandardMaterial/Tools/headersnew'
-    headers = '/home/hugo/Documents/dev/freecad/freecadbhb_dev/freecad/src/Mod/Material/StandardMaterial/Tools/headers'
+    headers = join(FREECAD_SRC_PATH, 'Mod/Material/StandardMaterial/Tools/headers')
     f = open(headers, "w")
     for group in template_data:
         gg = list(group.keys())[0]  # group dict has only one key
@@ -156,18 +189,22 @@ def create_mat_tools_header():
 
 
 def create_mat_template_card(write_group_section=True):
-    rev = FreeCAD.ConfigGet("BuildVersionMajor") + "." + FreeCAD.ConfigGet("BuildVersionMinor") + "." + FreeCAD.ConfigGet("BuildRevision")
+    rev = "{}.{}.{}".format(
+        FreeCAD.ConfigGet("BuildVersionMajor"),
+        FreeCAD.ConfigGet("BuildVersionMinor"),
+        FreeCAD.ConfigGet("BuildRevision")
+    )
     template_data = get_material_template()
-    template_card = '/home/hugo/Documents/dev/freecad/freecadbhb_dev/freecad/src/Mod/Material/StandardMaterial/TEMPLATE.FCMat'
+    template_card = join(FREECAD_SRC_PATH, 'Mod/Material/StandardMaterial/TEMPLATE.FCMat')
     f = open(template_card, "w")
     f.write('; TEMPLATE\n')
     f.write('; (c) 2013-2015 Juergen Riegel (CC-BY 3.0)\n')
     f.write('; information about the content of such cards can be found on the wiki:\n')
-    f.write('; https://www.freecadweb.org/wiki/index.php?title=Material\n')
+    f.write('; https://www.freecadweb.org/wiki/Material\n')
     f.write(': this template card was created by FreeCAD ' + rev + '\n\n')
     f.write('; localized Name, Description and KindOfMaterial uses 2 letter codes\n')
     f.write('; defined in ISO-639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes\n')
-    f.write('; find unit information in src/App/FreeCADInit.py\n')
+    f.write('; find unit information in src/App/FreeCADInit.py')
     # write sections
     # write standard FCMat section if write group section parameter is set to False
     if write_group_section is False:
@@ -178,8 +215,9 @@ def create_mat_template_card(write_group_section=True):
         if (gg != 'Meta') and (gg != 'UserDefined'):
             # only write group section if write group section parameter is set to True
             if write_group_section is True:
-                f.write("\n[" + gg + "]\n")
+                f.write("\n\n[" + gg + "]")
             for prop_name in group[gg]:
+                f.write('\n')
                 description = group[gg][prop_name]['Description']
                 if not description.strip():
                     f.write('; Description to be updated\n')
@@ -188,24 +226,30 @@ def create_mat_template_card(write_group_section=True):
                 url = group[gg][prop_name]['URL']
                 if url.strip():
                     f.write('; ' + url + '\n')
-                f.write(prop_name + ' =\n\n')
+                f.write(prop_name + ' =\n')
     f.close
 
 
 def get_material_template(withSpaces=False):
     # material properties
-    # see the following resources in the FreeCAD wiki for more information about the material specific properties:
+    # see the following resources in the FreeCAD wiki for more
+    # information about the material specific properties:
     # https://www.freecadweb.org/wiki/Material_data_model
     # https://www.freecadweb.org/wiki/Material
 
     import yaml
-    template_data = yaml.safe_load(open(FreeCAD.ConfigGet('AppHomePath') + 'Mod/Material/Templatematerial.yml'))
+    template_data = yaml.safe_load(
+        open(join(FreeCAD.ConfigGet('AppHomePath'), 'Mod/Material/Templatematerial.yml'))
+    )
     if withSpaces:
-        # on attributes, add a space before a capital letter, will be used for better display in the ui
+        # on attributes, add a space before a capital letter
+        # will be used for better display in the ui
         import re
         for group in template_data:
             gg = list(group.keys())[0]  # group dict has only one key
-            for proper in list(group[gg].keys()):  # iterating over a dict and changing it is not allowed, thus we iterate over a list of the keys
+            # iterating over a dict and changing it is not allowed
+            # thus it is iterated over a list of the keys
+            for proper in list(group[gg].keys()):
                 new_proper = re.sub(r"(\w)([A-Z]+)", r"\1 \2", proper)
                 group[gg][new_proper] = group[gg][proper]
                 del group[gg][proper]
@@ -217,7 +261,7 @@ def read_cards_from_path(cards_path):
     from os.path import isfile, join, basename, splitext
     from importFCMat import read
     only_files = [f for f in listdir(cards_path) if isfile(join(cards_path, f))]
-    mat_files = [f for f in only_files if basename(splitext(f)[1]) == '.FCMat' or basename(splitext(f)[1]) == '.fcmat']
+    mat_files = [f for f in only_files if basename(splitext(f)[1]) == '.FCMat']
     # print(mat_files)
     mat_cards = []
     for f in sorted(mat_files):

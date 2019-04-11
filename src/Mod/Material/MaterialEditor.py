@@ -32,6 +32,7 @@ from PySide import QtCore, QtGui
 import FreeCAD
 import FreeCADGui
 
+# ist this still needed after the move to card utils???
 if sys.version_info.major >= 3:
     unicode = str
 
